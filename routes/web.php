@@ -28,6 +28,30 @@ Route::get('/auth-status', function () {
     ]);
 });
 
+// Test route to check if the admin dashboard view can be rendered
+Route::get('/test-admin-view', function () {
+    try {
+        return view('admin.dashboard', [
+            'stats' => [
+                'total_users' => 0,
+                'total_investments' => 0,
+                'active_investments' => 0,
+                'total_transactions' => 0,
+                'pending_withdrawals' => 0,
+                'total_wallet_balance' => 0,
+                'total_earnings' => 0,
+                'total_referral_earnings' => 0,
+            ],
+            'recentUsers' => [],
+            'recentTransactions' => [],
+            'topInvestors' => [],
+            'monthlyStats' => [],
+        ]);
+    } catch (\Exception $e) {
+        return 'Error rendering view: ' . $e->getMessage();
+    }
+});
+
 // Debug CSRF token
 Route::post('/debug-csrf', function (Request $request) {
     return response()->json([
@@ -46,7 +70,7 @@ Route::get('/register', function () {
     return view('auth.register', compact('referralCode'));
 })->name('register');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'ensure.user.role'])->group(function () {
     // Main Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -85,7 +109,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 });
 
 // Admin Routes
-Route::middleware(['auth', 'role:admin|system'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'ensure.admin.role'])->prefix('admin')->name('admin.')->group(function () {
     // Admin Dashboard and Core Management
     Route::get('/dashboard', [App\Http\Controllers\Admin\AdminController::class, 'dashboard'])->name('dashboard');
 

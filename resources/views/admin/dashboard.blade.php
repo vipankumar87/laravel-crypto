@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+@extends('layouts.admin-custom')
 
 @section('title', 'Admin Dashboard')
 
@@ -19,7 +19,6 @@
 @stop
 
 @section('content')
-<div class="container-fluid">
     <!-- Stats Row -->
     <div class="row">
         <!-- Total Users -->
@@ -263,7 +262,7 @@
         </div>
     </div>
 </div>
-@stop
+@endsection
 
 @section('js')
 <script>

@@ -33,11 +33,26 @@ class AuthenticatedSessionController extends Controller
             
             $request->authenticate();
 
+            // Get the authenticated user
+            $user = Auth::user();
+            
+            // Check if user is a system role and prevent login if needed
+            if ($user->hasRole('system')) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                
+                return back()->withErrors([
+                    'username' => 'System accounts cannot log in through this interface.',
+                ]);
+            }
+
             // Log successful authentication
             \Log::info('Authentication successful in controller', [
                 'user_id' => Auth::id(),
-                'username' => Auth::user()->username,
+                'username' => $user->username,
                 'session_id' => session()->getId(),
+                'roles' => $user->getRoleNames(),
             ]);
 
             $request->session()->regenerate();
@@ -50,7 +65,16 @@ class AuthenticatedSessionController extends Controller
             // Store a test value in session
             session(['login_test' => 'Login was successful at ' . now()]);
 
-            return redirect()->intended(route('dashboard', absolute: false));
+            // Redirect based on user role
+            if ($user->hasRole('admin')) {
+                return redirect()->intended(route('admin.dashboard', absolute: false));
+            } else {
+                // Ensure user has the 'user' role
+                if (!$user->hasRole('user')) {
+                    $user->assignRole('user');
+                }
+                return redirect()->intended(route('dashboard', absolute: false));
+            }
         } catch (\Exception $e) {
             \Log::error('Authentication error in controller', [
                 'error' => $e->getMessage(),

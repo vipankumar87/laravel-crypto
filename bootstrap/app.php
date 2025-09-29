@@ -17,10 +17,16 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'check.banned' => \App\Http\Middleware\CheckBannedUser::class,
+            'prevent.system.login' => \App\Http\Middleware\PreventSystemUserLogin::class,
+            'ensure.user.role' => \App\Http\Middleware\EnsureUserRole::class,
+            'ensure.admin.role' => \App\Http\Middleware\EnsureAdminRole::class,
         ]);
 
-        // Apply banned user check to web routes
-        $middleware->web(\App\Http\Middleware\CheckBannedUser::class);
+        // Apply banned user check and prevent system login to web routes
+        $middleware->web([
+            \App\Http\Middleware\CheckBannedUser::class,
+            \App\Http\Middleware\PreventSystemUserLogin::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
