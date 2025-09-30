@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\ReferralController;
+use App\Http\Controllers\CryptoInvestmentController;
 use App\Http\Controllers\QuickInvestController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -78,19 +79,20 @@ Route::middleware(['auth', 'verified', 'ensure.user.role'])->group(function () {
     // Wallet Management
     Route::prefix('wallet')->name('wallet.')->group(function () {
         Route::get('/', [WalletController::class, 'index'])->name('index');
-        Route::post('/deposit', [WalletController::class, 'deposit'])->name('deposit');
         Route::post('/withdraw', [WalletController::class, 'withdraw'])->name('withdraw');
+        Route::post('/invest', [WalletController::class, 'invest'])->name('invest');
         Route::get('/transactions', [WalletController::class, 'transactions'])->name('transactions');
     });
 
     // Investment Management
     Route::prefix('investments')->name('investments.')->group(function () {
         Route::get('/', [InvestmentController::class, 'index'])->name('index');
-        Route::get('/plans', [InvestmentController::class, 'plans'])->name('plans');
         Route::post('/invest', [InvestmentController::class, 'invest'])->name('invest');
         Route::get('/history', [InvestmentController::class, 'history'])->name('history');
+        Route::get('/crypto', [CryptoInvestmentController::class, 'index'])->name('crypto');
+        Route::post('/crypto/process', [CryptoInvestmentController::class, 'process'])->name('crypto.process');
     });
-    
+
     // Quick Invest Routes
     Route::prefix('quick-invest')->name('quick-invest.')->group(function () {
         Route::get('/', function () {

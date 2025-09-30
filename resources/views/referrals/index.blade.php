@@ -16,9 +16,9 @@
                     <h4><i class="icon fas fa-exclamation-triangle"></i> Investment Required!</h4>
                     {{ $message }}
                     <br><br>
-                    <a href="{{ route('investments.plans') }}" class="btn btn-primary">
-                        <i class="fas fa-chart-line"></i> View Investment Plans
-                    </a>
+                    <button type="button" class="btn btn-primary" onclick="investFromWallet()">
+                        <i class="fas fa-chart-line"></i> Quick Investment
+                    </button>
                 </div>
             </div>
         </div>
@@ -129,6 +129,11 @@ function copyReferralLink() {
         body: 'Referral link copied to clipboard!',
         delay: 3000
     });
+}
+
+function investFromWallet() {
+    // Redirect to wallet page for investment functionality
+    window.location.href = '{{ route("wallet.index") }}';
 }
 </script>
 @stop

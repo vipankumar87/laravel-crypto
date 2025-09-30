@@ -75,7 +75,7 @@
                                     <p class="text-muted">Start investing now with multiple payment options</p>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <a href="{{ route('quick-invest.crypto') }}" class="btn btn-warning btn-lg btn-block">
+                                            <a href="{{ route('investments.crypto') }}" class="btn btn-warning btn-lg btn-block">
                                                 <i class="fab fa-bitcoin"></i>
                                                 Invest with Crypto Wallet
                                             </a>
@@ -190,7 +190,25 @@ function investFromWallet() {
 
     if (confirmed) {
         // Redirect to investment plans with amount
-        window.location.href = `{{ route('investments.plans') }}?amount=${investmentAmount}&source=wallet`;
+        // Create a form and submit it
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("wallet.invest") }}';
+
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = '{{ csrf_token() }}';
+
+        const amountInput = document.createElement('input');
+        amountInput.type = 'hidden';
+        amountInput.name = 'amount';
+        amountInput.value = investmentAmount;
+
+        form.appendChild(csrfToken);
+        form.appendChild(amountInput);
+        document.body.appendChild(form);
+        form.submit();
     }
 }
 </script>

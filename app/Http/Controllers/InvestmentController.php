@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Investment;
-use App\Models\InvestmentPlan;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,73 +13,82 @@ class InvestmentController extends Controller
     public function index()
     {
         $investments = Auth::user()->investments()
-            ->with('investmentPlan')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
         return view('investments.index', compact('investments'));
     }
 
-    public function plans()
+    public function crypto()
     {
-        $plans = InvestmentPlan::active()->get();
-        return view('investments.plans', compact('plans'));
+        $user = Auth::user();
+        $wallet = $user->wallet;
+
+        return view('investments.crypto', compact('user', 'wallet'));
     }
 
     public function invest(Request $request)
     {
         $request->validate([
-            'plan_id' => 'required|exists:investment_plans,id',
             'amount' => 'required|numeric|min:1',
-            'source' => 'nullable|string|in:wallet,crypto',
+            'payment_currency' => 'required|string|max:10',
+            'investment_currency' => 'required|string|max:10',
         ]);
 
         $user = Auth::user();
-        $plan = InvestmentPlan::findOrFail($request->plan_id);
         $amount = $request->amount;
-        $source = $request->source ?? 'wallet';
+        $paymentCurrency = $request->payment_currency;
+        $investmentCurrency = $request->investment_currency;
 
-        // For crypto investments, add the processing fee
-        $totalDeduction = $amount;
-        if ($source === 'crypto') {
-            $totalDeduction += 1; // 1 USDT processing fee for crypto investments
+        // Default investment parameters (since no plans)
+        $dailyReturnRate = 2.0; // 2% daily return
+        $durationDays = 30; // 30 days duration
+        $totalReturnRate = $dailyReturnRate * $durationDays; // 60% total return
+        $referralBonusRate = 5.0; // 5% referral bonus
+
+        // Processing fee for crypto investments
+        $processingFee = 1.0; // 1 USDT processing fee
+        $totalDeduction = $amount + $processingFee;
+
+        // Validate minimum investment
+        if ($amount < 10) {
+            return back()->with('error', 'Minimum investment amount is $10');
         }
 
-        // Validate investment amount
-        if ($amount < $plan->min_amount || $amount > $plan->max_amount) {
-            return back()->with('error', "Investment amount must be between $" . number_format($plan->min_amount, 2) . " and $" . number_format($plan->max_amount, 2));
-        }
-
-        // Check wallet balance (including fee for crypto)
+        // Check wallet balance
         if (!$user->wallet || $user->wallet->balance < $totalDeduction) {
-            $errorMessage = $source === 'crypto'
-                ? 'Insufficient wallet balance (including 1 USDT processing fee)'
-                : 'Insufficient wallet balance';
-            return back()->with('error', $errorMessage);
+            return back()->with('error', 'Insufficient wallet balance (including processing fee)');
         }
 
         DB::beginTransaction();
 
         try {
-            // Deduct from wallet (including fee for crypto)
-            $description = $source === 'crypto'
-                ? 'Investment in ' . $plan->name . ' (with 1 USDT crypto fee)'
-                : 'Investment in ' . $plan->name;
+            // Deduct from wallet
+            $description = "Crypto investment (with processing fee)";
+            $deductSuccess = $user->wallet->deductBalance($totalDeduction, $description);
 
-            $user->wallet->deductBalance($totalDeduction, $description);
+            if (!$deductSuccess) {
+                throw new \Exception('Failed to deduct amount from wallet');
+            }
+
+            // Calculate returns
+            $expectedReturn = ($amount * $totalReturnRate / 100);
+            $endDate = now()->addDays($durationDays);
 
             // Create investment
-            $expectedReturn = ($amount * $plan->total_return_rate / 100);
-            $endDate = now()->addDays($plan->duration_days);
-
             Investment::create([
                 'user_id' => $user->id,
-                'investment_plan_id' => $plan->id,
-                'investment_plan' => $plan->name,
+                'investment_plan_id' => null, // No plan needed
+                'investment_plan' => 'Crypto Investment',
                 'amount' => $amount,
+                'payment_currency' => $paymentCurrency,
+                'investment_currency' => $investmentCurrency,
+                'payment_amount' => $amount,
+                'exchange_rate' => 1.0, // Will be updated with actual rate
+                'conversion_fee' => $processingFee,
                 'expected_return' => $expectedReturn,
-                'duration_days' => $plan->duration_days,
-                'daily_return_rate' => $plan->daily_return_rate,
+                'duration_days' => $durationDays,
+                'daily_return_rate' => $dailyReturnRate,
                 'start_date' => now(),
                 'end_date' => $endDate,
                 'status' => 'active',
@@ -93,8 +101,8 @@ class InvestmentController extends Controller
             if ($user->referred_by) {
                 $referrer = $user->referrer;
                 if ($referrer && $referrer->wallet) {
-                    $bonus = ($amount * $plan->referral_bonus_rate / 100);
-                    $referrer->wallet->addBalance($bonus, 'Referral bonus from ' . $user->name);
+                    $bonus = ($amount * $referralBonusRate / 100);
+                    $referrer->wallet->addBalance($bonus, 'Referral bonus from ' . $user->username);
                     $referrer->wallet->increment('referral_earnings', $bonus);
                 }
             }
@@ -102,7 +110,7 @@ class InvestmentController extends Controller
             DB::commit();
 
             return redirect()->route('investments.index')
-                ->with('success', 'Investment created successfully!');
+                ->with('success', 'Crypto investment created successfully!');
 
         } catch (\Exception $e) {
             DB::rollBack();

@@ -21,9 +21,9 @@
                 <div class="card-header">
                     <h3 class="card-title">Active Investments</h3>
                     <div class="card-tools">
-                        <a href="{{ route('investments.plans') }}" class="btn btn-primary btn-sm">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="investFromWallet()">
                             <i class="fas fa-plus"></i> New Investment
-                        </a>
+                        </button>
                     </div>
                 </div>
                 <div class="card-body table-responsive">
@@ -76,4 +76,13 @@
         </div>
     </div>
 </div>
+@stop
+
+@section('js')
+<script>
+function investFromWallet() {
+    // Redirect to wallet page for investment functionality
+    window.location.href = '{{ route("wallet.index") }}';
+}
+</script>
 @stop

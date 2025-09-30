@@ -365,11 +365,6 @@ return [
             'can' => 'access-user-features',
             'submenu' => [
                 [
-                    'text' => 'Investment Plans',
-                    'route' => 'investments.plans',
-                    'icon' => 'fas fa-fw fa-list',
-                ],
-                [
                     'text' => 'My Investments',
                     'route' => 'investments.index',
                     'icon' => 'fas fa-fw fa-chart-pie',
