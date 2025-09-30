@@ -32,27 +32,42 @@ class InvestmentController extends Controller
         $request->validate([
             'plan_id' => 'required|exists:investment_plans,id',
             'amount' => 'required|numeric|min:1',
+            'source' => 'nullable|string|in:wallet,crypto',
         ]);
 
         $user = Auth::user();
         $plan = InvestmentPlan::findOrFail($request->plan_id);
         $amount = $request->amount;
+        $source = $request->source ?? 'wallet';
+
+        // For crypto investments, add the processing fee
+        $totalDeduction = $amount;
+        if ($source === 'crypto') {
+            $totalDeduction += 1; // 1 USDT processing fee for crypto investments
+        }
 
         // Validate investment amount
         if ($amount < $plan->min_amount || $amount > $plan->max_amount) {
             return back()->with('error', "Investment amount must be between $" . number_format($plan->min_amount, 2) . " and $" . number_format($plan->max_amount, 2));
         }
 
-        // Check wallet balance
-        if (!$user->wallet || $user->wallet->balance < $amount) {
-            return back()->with('error', 'Insufficient wallet balance');
+        // Check wallet balance (including fee for crypto)
+        if (!$user->wallet || $user->wallet->balance < $totalDeduction) {
+            $errorMessage = $source === 'crypto'
+                ? 'Insufficient wallet balance (including 1 USDT processing fee)'
+                : 'Insufficient wallet balance';
+            return back()->with('error', $errorMessage);
         }
 
         DB::beginTransaction();
 
         try {
-            // Deduct from wallet
-            $user->wallet->deductBalance($amount, 'Investment in ' . $plan->name);
+            // Deduct from wallet (including fee for crypto)
+            $description = $source === 'crypto'
+                ? 'Investment in ' . $plan->name . ' (with 1 USDT crypto fee)'
+                : 'Investment in ' . $plan->name;
+
+            $user->wallet->deductBalance($totalDeduction, $description);
 
             // Create investment
             $expectedReturn = ($amount * $plan->total_return_rate / 100);

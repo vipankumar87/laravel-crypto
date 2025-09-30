@@ -61,7 +61,41 @@
                             </div>
                         </div>
                     </div>
-                    
+
+                    <!-- Quick Invest Card -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card card-outline card-success">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-bolt"></i> Quick Invest
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted">Start investing now with multiple payment options</p>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <a href="{{ route('quick-invest.crypto') }}" class="btn btn-warning btn-lg btn-block">
+                                                <i class="fab fa-bitcoin"></i>
+                                                Invest with Crypto Wallet
+                                            </a>
+                                            <small class="text-muted">Add funds through cryptocurrency</small>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <button type="button" class="btn btn-success btn-lg btn-block" onclick="investFromWallet()">
+                                                <i class="fas fa-wallet"></i>
+                                                Invest from Wallet
+                                            </button>
+                                            <small class="text-muted">
+                                                Available: {{ number_format($wallet->balance ?? 0, 2) }} USDT
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Referral Link -->
                     <div class="card card-outline card-primary">
                         <div class="card-header">
@@ -125,6 +159,39 @@ function copyToClipboard() {
     referralLink.select();
     document.execCommand('copy');
     alert('Referral link copied to clipboard!');
+}
+
+function investFromWallet() {
+    const walletBalance = {{ $wallet->balance ?? 0 }};
+
+    if (walletBalance <= 0) {
+        alert('Insufficient wallet balance. Please add funds to your wallet first.');
+        return;
+    }
+
+    const amount = prompt(`Enter investment amount (Available: ${walletBalance.toFixed(2)} USDT):`);
+
+    if (amount === null) return; // User cancelled
+
+    const investmentAmount = parseFloat(amount);
+
+    if (isNaN(investmentAmount) || investmentAmount <= 0) {
+        alert('Please enter a valid amount.');
+        return;
+    }
+
+    if (investmentAmount > walletBalance) {
+        alert('Insufficient wallet balance.');
+        return;
+    }
+
+    // Show confirmation popup
+    const confirmed = confirm(`Confirm Investment:\n\nAmount: ${investmentAmount.toFixed(2)} USDT\nSource: Wallet Balance\n\nProceed with this investment?`);
+
+    if (confirmed) {
+        // Redirect to investment plans with amount
+        window.location.href = `{{ route('investments.plans') }}?amount=${investmentAmount}&source=wallet`;
+    }
 }
 </script>
 @stop

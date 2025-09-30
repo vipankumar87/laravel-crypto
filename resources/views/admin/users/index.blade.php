@@ -93,7 +93,7 @@
                 </tbody>
             </table>
         </div>
-        @if($users->hasPages())
+        @if(method_exists($users, 'hasPages') && $users->hasPages())
             <div class="card-footer">
                 {{ $users->links() }}
             </div>

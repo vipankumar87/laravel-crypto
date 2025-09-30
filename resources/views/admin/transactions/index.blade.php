@@ -151,7 +151,7 @@
                 </tbody>
             </table>
         </div>
-        @if(isset($transactions) && $transactions->hasPages())
+        @if(isset($transactions) && method_exists($transactions, 'hasPages') && $transactions->hasPages())
             <div class="card-footer">
                 {{ $transactions->links() }}
             </div>

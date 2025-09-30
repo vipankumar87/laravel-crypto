@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+@extends('layouts.user')
 
 @section('title', 'Wallet Transactions')
 
@@ -68,7 +68,7 @@
                         </tbody>
                     </table>
                 </div>
-                @if($transactions->hasPages())
+                @if(method_exists($transactions, 'hasPages') && $transactions->hasPages())
                     <div class="card-footer">
                         {{ $transactions->links() }}
                     </div>

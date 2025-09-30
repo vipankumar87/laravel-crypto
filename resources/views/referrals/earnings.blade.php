@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+@extends('layouts.user')
 
 @section('title', 'Referral Earnings')
 
@@ -94,7 +94,7 @@
                         </tbody>
                     </table>
                 </div>
-                @if($earnings->hasPages())
+                @if(method_exists($earnings, 'hasPages') && $earnings->hasPages())
                     <div class="card-footer">
                         {{ $earnings->links() }}
                     </div>

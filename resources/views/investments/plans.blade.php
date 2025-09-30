@@ -1,9 +1,16 @@
-@extends('adminlte::page')
+@extends('layouts.user')
 
 @section('title', 'Investment Plans')
 
 @section('content_header')
-    <h1>Investment Plans</h1>
+    <h1>
+        Investment Plans
+        @if(request()->get('source'))
+            <small class="text-muted">
+                - Quick Invest {{ request()->get('source') == 'wallet' ? 'from Wallet' : 'via Crypto' }}
+            </small>
+        @endif
+    </h1>
 @stop
 
 @section('content')
@@ -15,56 +22,72 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
+    @if(request()->get('source'))
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            <strong>Quick Investment Mode:</strong>
+            @if(request()->get('source') == 'wallet')
+                You're investing from your wallet balance.
+                @if(request()->get('amount'))
+                    Pre-filled amount: ${{ number_format(request()->get('amount'), 2) }}
+                @endif
+            @else
+                You're making a crypto investment with a 1 USDT processing fee.
+            @endif
+        </div>
+    @endif
+
     <div class="row">
         @foreach($plans as $plan)
-            <div class="col-md-6 col-lg-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">{{ $plan->name }}</h3>
-                        <span class="badge badge-success float-right">${{ number_format($plan->min_amount) }} - ${{ number_format($plan->max_amount) }}</span>
-                    </div>
-                    <div class="card-body">
-                        <p>{{ $plan->description }}</p>
-
-                        <ul class="list-unstyled">
-                            <li><strong>Daily Return:</strong> {{ $plan->daily_return_rate }}%</li>
-                            <li><strong>Duration:</strong> {{ $plan->duration_days }} days</li>
-                            <li><strong>Total Return:</strong> {{ $plan->total_return_rate }}%</li>
-                            <li><strong>Referral Bonus:</strong> {{ $plan->referral_bonus_rate }}%</li>
-                        </ul>
-
-                        <div class="progress mb-3">
-                            @php
-                                $percentage = $plan->max_investors ?
-                                    min(($plan->total_investors / $plan->max_investors) * 100, 100) :
-                                    0;
-                            @endphp
-                            <div class="progress-bar" role="progressbar" style="width: {{ $percentage }}%">
-                                {{ $plan->total_investors }} {{ $plan->max_investors ? '/ ' . $plan->max_investors : '' }} investors
-                            </div>
-                        </div>
-
-                        <form method="POST" action="{{ route('investments.invest') }}">
-                            @csrf
-                            <input type="hidden" name="plan_id" value="{{ $plan->id }}">
-                            <div class="input-group mb-3">
-                                <input type="number" name="amount" class="form-control"
-                                       placeholder="Investment Amount"
-                                       min="{{ $plan->min_amount }}"
-                                       max="{{ $plan->max_amount }}"
-                                       step="0.01" required>
-                                <div class="input-group-append">
-                                    <span class="input-group-text">$</span>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-block">
-                                Invest Now
-                            </button>
-                        </form>
-                    </div>
-                </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <x-investment-plan-card :plan="$plan" :source="request()->get('source')" />
             </div>
         @endforeach
     </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <x-data-card title="Investment Information" type="info" outline="true">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>How Our Investments Work</h5>
+                        <ul class="text-muted">
+                            <li>Choose an investment plan that suits your goals</li>
+                            <li>Invest any amount within the plan's limits</li>
+                            <li>Receive daily returns directly to your wallet</li>
+                            <li>Track your investments in real-time</li>
+                            <li>Refer others to earn additional bonuses</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Investment Security</h5>
+                        <ul class="text-muted">
+                            <li>All investments are secured by our reserve fund</li>
+                            <li>Transparent blockchain-based transactions</li>
+                            <li>Real-time monitoring of investment performance</li>
+                            <li>24/7 customer support for any questions</li>
+                        </ul>
+                    </div>
+                </div>
+            </x-data-card>
+        </div>
+    </div>
 </div>
+@stop
+
+@section('js')
+<script>
+// Additional JavaScript for the investment plans page
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle pre-filled amounts from query parameters if needed
+    const sourceParam = new URLSearchParams(window.location.search).get('source');
+    const amountParam = new URLSearchParams(window.location.search).get('amount');
+    
+    if (sourceParam && amountParam) {
+        console.log(`Quick invest mode: ${sourceParam} with amount: ${amountParam}`);
+    }
+    
+    // Add any additional page-specific JavaScript here
+});
+</script>
 @stop

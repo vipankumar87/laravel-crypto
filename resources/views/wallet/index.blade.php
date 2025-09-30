@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+@extends('layouts.user')
 
 @section('title', 'My Wallet')
 

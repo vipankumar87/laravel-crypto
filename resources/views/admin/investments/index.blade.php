@@ -74,7 +74,7 @@
                 </tbody>
             </table>
         </div>
-        @if(isset($investments) && $investments->hasPages())
+        @if(isset($investments) && method_exists($investments, 'hasPages') && $investments->hasPages())
             <div class="card-footer">
                 {{ $investments->links() }}
             </div>

@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\ReferralController;
+use App\Http\Controllers\QuickInvestController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -88,6 +89,16 @@ Route::middleware(['auth', 'verified', 'ensure.user.role'])->group(function () {
         Route::get('/plans', [InvestmentController::class, 'plans'])->name('plans');
         Route::post('/invest', [InvestmentController::class, 'invest'])->name('invest');
         Route::get('/history', [InvestmentController::class, 'history'])->name('history');
+    });
+    
+    // Quick Invest Routes
+    Route::prefix('quick-invest')->name('quick-invest.')->group(function () {
+        Route::get('/', function () {
+            return view('investments.quick-invest');
+        })->name('index');
+        Route::get('/crypto', function () {
+            return view('investments.quick-invest', ['source' => 'crypto']);
+        })->name('crypto');
     });
 
     // Referral System

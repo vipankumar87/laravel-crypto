@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+@extends('layouts.user')
 
 @section('title', 'Investment History')
 
@@ -55,7 +55,7 @@
                         </tbody>
                     </table>
                 </div>
-                @if($investments->hasPages())
+                @if(method_exists($investments, 'hasPages') && $investments->hasPages())
                     <div class="card-footer">
                         {{ $investments->links() }}
                     </div>
