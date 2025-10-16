@@ -64,7 +64,7 @@ class AuthenticatedSessionController extends Controller
 
             // Store a test value in session
             session(['login_test' => 'Login was successful at ' . now()]);
-
+            \Log::info('Role has', [$user->hasRole('admin'), $user->hasRole('user'), $user->getRoleNames()]);
             // Redirect based on user role
             if ($user->hasRole('admin')) {
                 return redirect()->intended(route('admin.dashboard', absolute: false));
