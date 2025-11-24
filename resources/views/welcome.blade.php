@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'CryptoInvest') }} - Premium Crypto Investment Platform</title>
+    <title>{{ config('app.name', 'CryptoInvest') }} - Crypto Investment Platform</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,27 +25,36 @@
             font-family: 'Inter', sans-serif;
             line-height: 1.6;
             overflow-x: hidden;
+            background-color: #050301;
         }
 
         .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background:
+                radial-gradient(circle at top left, rgba(0, 0, 0, 0.4) 0%, transparent 45%),
+                radial-gradient(circle at top, #ffeb99 0%, #f4c542 25%, #b37a10 55%, #3b2604 100%),
+                url("{{ asset('images/logo.png') }}");
+            background-repeat: no-repeat, no-repeat, no-repeat;
+            background-size: cover, cover, 420px 420px;
+            background-position: center, center, right 8% center;
             min-height: 100vh;
         }
 
         .crypto-bg {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #3b2604 0%, #8c5a06 40%, #f4c542 100%);
         }
 
         .dark-bg {
-            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 100%);
+            background: linear-gradient(135deg, #120a02 0%, #2a1804 40%, #5a3604 100%);
         }
 
         .gold-gradient {
-            background: linear-gradient(135deg, #f7931e 0%, #ffd700 100%);
+            background:
+                radial-gradient(circle at top, rgba(255, 255, 255, 0.35) 0%, transparent 45%),
+                linear-gradient(135deg, #f4b41a 0%, #ffdd55 35%, #ffb300 70%, #8c5a06 100%);
         }
 
         .text-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #fff3b0 0%, #ffd54f 40%, #ffb300 80%, #b37a10 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -59,8 +68,8 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #f9a825 0%, #ffd54f 40%, #ffb300 80%, #b37a10 100%);
+            color: #2a1804;
             padding: 12px 30px;
             border-radius: 50px;
             text-decoration: none;
@@ -70,10 +79,9 @@
             border: none;
             cursor: pointer;
         }
-
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
         }
 
         .btn-secondary {
@@ -92,7 +100,10 @@
             background: rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
         }
-
+        .logo-img{
+            width: 57px;
+            vertical-align: middle;
+        } 
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -104,33 +115,33 @@
         }
 
         .feature-card {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(10, 6, 2, 0.7);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 40px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.4);
             transition: all 0.3s ease;
         }
 
         .feature-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
         }
 
         .plan-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 248, 225, 0.97);
             border-radius: 20px;
             padding: 40px;
             text-align: center;
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(179, 122, 16, 0.4);
             transition: all 0.3s ease;
-            color: #333;
+            color: #3b2604;
         }
 
         .plan-card.featured {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: radial-gradient(circle at top, #fff9c4 0%, #ffd54f 35%, #ffb300 70%, #8c5a06 100%);
+            color: #2a1804;
             transform: scale(1.05);
         }
 
@@ -152,22 +163,30 @@
 
         .stat-item {
             text-align: center;
-            color: white;
+            color: #3b2604;
         }
 
         .stat-number {
             font-size: 3rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #f7931e 0%, #ffd700 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-weight: 800;
+            color: #fff8e1;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
         }
 
         .hero {
-            padding: 120px 0;
+            padding: 140px 0 120px;
             text-align: center;
             color: white;
+        }
+
+        .hero-panel {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 40px 32px 48px;
+            background:
+                radial-gradient(circle at top, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.5) 35%, rgba(0, 0, 0, 0.35) 100%);
+            border-radius: 32px;
+            box-shadow: 0 26px 70px rgba(0, 0, 0, 0.7);
         }
 
         .hero h1 {
@@ -175,15 +194,17 @@
             font-weight: 700;
             margin-bottom: 20px;
             line-height: 1.2;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
         }
 
         .hero p {
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             margin-bottom: 40px;
             opacity: 0.9;
-            max-width: 600px;
+            max-width: 640px;
             margin-left: auto;
             margin-right: auto;
+            color: #f9f6ee;
         }
 
         .features-grid {
@@ -204,9 +225,9 @@
             position: fixed;
             top: 0;
             width: 100%;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(15, 9, 3, 0.85);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.4);
             z-index: 1000;
             padding: 15px 0;
         }
@@ -243,7 +264,7 @@
         }
 
         .footer {
-            background: #1a1a2e;
+            background: radial-gradient(circle at top, #3b2604 0%, #120a02 50%, #050301 100%);
             color: white;
             padding: 60px 0 30px;
         }
@@ -358,7 +379,7 @@
     <nav class="navbar">
         <div class="container">
             <a href="/" class="logo">
-                <i class="fas fa-coins"></i> CryptoInvest Pro
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo-img"/> Doge Shaker
             </a>
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
@@ -383,7 +404,7 @@
     <section id="home" class="gradient-bg">
         <div class="hero">
             <div class="container">
-                <div class="animate-fade-in">
+                <div class="hero-panel animate-fade-in">
                     <h1 class="animate-float">
                         Next-Gen Crypto <br>
                         <span class="text-gradient">Investment Platform</span>
@@ -412,7 +433,7 @@
         <div class="container">
             <div class="text-center" style="color: white; margin-bottom: 50px;">
                 <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 20px;">
-                    Why Choose CryptoInvest Pro?
+                    Why Choose Doge Shaker?
                 </h2>
                 <p style="font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 0 auto;">
                     Advanced features designed to maximize your cryptocurrency investment returns
@@ -421,7 +442,7 @@
 
             <div class="features-grid">
                 <div class="feature-card">
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <div style="background: radial-gradient(circle at top, #fff8e1 0%, #ffd54f 40%, #ffb300 75%, #8c5a06 100%); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
                         <i class="fas fa-robot" style="font-size: 2rem; color: white;"></i>
                     </div>
                     <h3 style="color: white; font-size: 1.5rem; margin-bottom: 15px; font-weight: 600;">AI-Powered Trading</h3>
@@ -467,11 +488,11 @@
 
             <div class="plans-grid">
                 <div class="plan-card">
-                    <div style="background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <div style="background: radial-gradient(circle at top, #fff8e1 0%, #ffe082 40%, #ffca28 70%, #b37a10 100%); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
                         <i class="fas fa-seedling" style="font-size: 1.5rem; color: white;"></i>
                     </div>
                     <h3 style="font-size: 1.8rem; margin-bottom: 10px; font-weight: 700;">Starter Plan</h3>
-                    <div style="font-size: 2.5rem; font-weight: 700; color: #667eea; margin-bottom: 20px;">
+                    <div style="font-size: 2.5rem; font-weight: 700; color: #b37a10; margin-bottom: 20px;">
                         2.5% <span style="font-size: 1rem; font-weight: 400;">daily</span>
                     </div>
                     <ul style="list-style: none; margin-bottom: 30px; text-align: left;">
@@ -509,11 +530,11 @@
                 </div>
 
                 <div class="plan-card">
-                    <div style="background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <div style="background: radial-gradient(circle at top, #fff8e1 0%, #ffecb3 35%, #ffca28 70%, #b37a10 100%); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
                         <i class="fas fa-crown" style="font-size: 1.5rem; color: white;"></i>
                     </div>
                     <h3 style="font-size: 1.8rem; margin-bottom: 10px; font-weight: 700;">VIP Elite</h3>
-                    <div style="font-size: 2.5rem; font-weight: 700; color: #667eea; margin-bottom: 20px;">
+                    <div style="font-size: 2.5rem; font-weight: 700; color: #b37a10; margin-bottom: 20px;">
                         6.8% <span style="font-size: 1rem; font-weight: 400;">daily</span>
                     </div>
                     <ul style="list-style: none; margin-bottom: 30px; text-align: left;">
@@ -576,7 +597,7 @@
         <div class="container">
             <div class="footer-grid">
                 <div>
-                    <h3><i class="fas fa-coins"></i> CryptoInvest Pro</h3>
+                    <h3><i class="fas fa-coins"></i> Doge Shaker</h3>
                     <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 20px;">
                         The world's most trusted cryptocurrency investment platform.
                         Start building your financial future today.
@@ -637,7 +658,7 @@
             <hr style="border: none; height: 1px; background: rgba(255, 255, 255, 0.2); margin: 40px 0 20px;">
 
             <div style="text-align: center; color: rgba(255, 255, 255, 0.7);">
-                <p>&copy; {{ date('Y') }} CryptoInvest Pro. All rights reserved. | Built with ❤️ for crypto investors</p>
+                <p>&copy; {{ date('Y') }} Doge Shaker. All rights reserved. | Built with ❤️ for crypto investors</p>
             </div>
         </div>
     </footer>
@@ -685,9 +706,13 @@
         window.addEventListener('scroll', function() {
             const navbar = document.querySelector('.navbar');
             if (window.scrollY > 100) {
-                navbar.style.background = 'rgba(26, 26, 46, 0.95)';
+                // Solid dark brown with gold hint when scrolled
+                navbar.style.background = 'rgba(15, 9, 3, 0.97)';
+                navbar.style.borderBottom = '1px solid rgba(255, 215, 0, 0.6)';
             } else {
-                navbar.style.background = 'rgba(255, 255, 255, 0.1)';
+                // Slightly transparent to blend with hero gold gradient at top
+                navbar.style.background = 'rgba(15, 9, 3, 0.85)';
+                navbar.style.borderBottom = '1px solid rgba(255, 215, 0, 0.4)';
             }
         });
     </script>
