@@ -30,12 +30,13 @@
 
         .gradient-bg {
             background:
-                radial-gradient(circle at top left, rgba(0, 0, 0, 0.4) 0%, transparent 45%),
-                radial-gradient(circle at top, #ffeb99 0%, #f4c542 25%, #b37a10 55%, #3b2604 100%),
-                url("{{ asset('images/logo.png') }}");
-            background-repeat: no-repeat, no-repeat, no-repeat;
-            background-size: cover, cover, 420px 420px;
-            background-position: center, center, right 8% center;
+                radial-gradient(circle at top, rgba(255, 255, 255, 0.07) 0%, transparent 55%),
+                radial-gradient(circle at bottom, rgba(255, 193, 7, 0.18) 0%, transparent 60%),
+                radial-gradient(circle at 10% 90%, rgba(255, 215, 0, 0.22) 0%, transparent 55%),
+                linear-gradient(135deg, #020308 0%, #050814 40%, #120a02 100%);
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
             min-height: 100vh;
         }
 
@@ -182,11 +183,24 @@
         .hero-panel {
             max-width: 760px;
             margin: 0 auto;
-            padding: 40px 32px 48px;
+            padding: 52px 32px 56px;
             background:
                 radial-gradient(circle at top, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.5) 35%, rgba(0, 0, 0, 0.35) 100%);
             border-radius: 32px;
             box-shadow: 0 26px 70px rgba(0, 0, 0, 0.7);
+        }
+
+        .hero-doge-img {
+            width: 190px;
+            height: 190px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 28px;
+            display: block;
+            box-shadow:
+                0 0 0 4px rgba(255, 215, 0, 0.7),
+                0 0 40px rgba(255, 215, 0, 0.65),
+                0 26px 60px rgba(0, 0, 0, 0.8);
         }
 
         .hero h1 {
@@ -405,6 +419,7 @@
         <div class="hero">
             <div class="container">
                 <div class="hero-panel animate-fade-in">
+                    <img src="{{ asset('images/logo.jpeg') }}" alt="Doge Shaker" class="hero-doge-img">
                     <h1 class="animate-float">
                         Next-Gen Crypto <br>
                         <span class="text-gradient">Investment Platform</span>
