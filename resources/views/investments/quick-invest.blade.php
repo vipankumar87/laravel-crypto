@@ -24,7 +24,7 @@
                                 
                                 @if((auth()->user()->wallet->balance ?? 0) > 0)
                                     <x-action-button 
-                                        href="{{ route('investments.plans', ['source' => 'wallet']) }}" 
+                                        href="{{ route('wallet.index') }}" 
                                         color="primary" 
                                         icon="fas fa-arrow-right" 
                                         block="true">
@@ -54,7 +54,7 @@
                                 <p>Supported: <strong>BTC, ETH, USDT, BNB</strong></p>
                                 
                                 <x-action-button 
-                                    href="{{ route('investments.plans', ['source' => 'crypto']) }}" 
+                                    href="{{ route('investments.crypto') }}" 
                                     color="warning" 
                                     icon="fas fa-arrow-right" 
                                     block="true">

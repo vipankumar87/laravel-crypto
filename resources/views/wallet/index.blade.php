@@ -89,7 +89,7 @@
                     @endcan
 
                     @cannot('manage wallets')
-                        <form method="POST" action="{{ route('wallet.withdraw') }}">
+                        <form method="POST" action="{{ route('wallet.withdraw') }}" class="mb-3">
                             @csrf
                             <div class="input-group">
                                 <input type="number" name="amount" class="form-control" placeholder="Withdraw Amount" step="0.01" min="1" max="{{ $wallet->balance }}" required>
@@ -99,6 +99,12 @@
                             </div>
                             <small class="text-muted">Withdrawal requests require admin approval</small>
                         </form>
+
+                        <!-- Invest from Wallet Button -->
+                        <button type="button" class="btn btn-primary btn-block" onclick="investFromWallet()">
+                            <i class="fas fa-chart-line"></i> Invest from Wallet
+                        </button>
+                        <small class="text-muted">Quick investment with popup confirmation</small>
                     @else
                         <div class="alert alert-warning">
                             <i class="fas fa-tools"></i> As an administrator, use the <a href="{{ route('admin.users.index') }}">User Management</a> panel to handle withdrawals and deposits for users.
@@ -128,4 +134,59 @@
         </div>
     </div>
 </div>
+@stop
+
+@section('js')
+<script>
+function investFromWallet() {
+    const walletBalance = {{ $wallet->balance }};
+
+    if (walletBalance < 11) { // Minimum $10 + $1 fee
+        alert('Insufficient balance! You need at least $11 (including $1 processing fee) to make an investment.');
+        return;
+    }
+
+    const amount = prompt('Enter investment amount (minimum $10):\n\nInvestment Details:\n• Daily Return: 2%\n• Duration: 30 days\n• Total Return: 60%\n• Processing Fee: $1', '10');
+
+    if (amount === null) {
+        return; // User cancelled
+    }
+
+    const investAmount = parseFloat(amount);
+
+    if (isNaN(investAmount) || investAmount < 10) {
+        alert('Please enter a valid amount (minimum $10)');
+        return;
+    }
+
+    if (investAmount + 1 > walletBalance) {
+        alert('Insufficient balance! You need $' + (investAmount + 1) + ' (including $1 processing fee) but have $' + walletBalance);
+        return;
+    }
+
+    const confirmMessage = `Confirm Investment:\n\nAmount: $${investAmount}\nProcessing Fee: $1\nTotal Deduction: $${investAmount + 1}\n\nDaily Return: 2%\nDuration: 30 days\nExpected Return: $${(investAmount * 0.6).toFixed(2)}\n\nProceed with investment?`;
+
+    if (confirm(confirmMessage)) {
+        // Create a form and submit it
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("wallet.invest") }}';
+
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = '{{ csrf_token() }}';
+
+        const amountInput = document.createElement('input');
+        amountInput.type = 'hidden';
+        amountInput.name = 'amount';
+        amountInput.value = investAmount;
+
+        form.appendChild(csrfToken);
+        form.appendChild(amountInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
 @stop

@@ -119,6 +119,11 @@ class User extends Authenticatable
         return $this->hasMany(User::class, 'banned_by');
     }
 
+    public function currencyPreference()
+    {
+        return $this->hasOne(UserCurrencyPreference::class);
+    }
+
     // Helper methods
     public function generateReferralCode()
     {

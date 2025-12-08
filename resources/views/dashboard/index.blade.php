@@ -120,9 +120,6 @@
                             <strong>Investment Required!</strong><br>
                             Make your first investment to unlock your referral link and start earning referral bonuses.
                         </div>
-                        <a href="{{ route('investments.plans') }}" class="btn btn-primary">
-                            <i class="fas fa-chart-line"></i> View Investment Plans
-                        </a>
                     </div>
                 </div>
             </div>
@@ -137,9 +134,9 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-6">
-                            <a href="{{ route('investments.plans') }}" class="btn btn-primary btn-block">
+                            <button type="button" class="btn btn-primary btn-block" onclick="investFromWallet()">
                                 <i class="fas fa-plus"></i> New Investment
-                            </a>
+                            </button>
                         </div>
                         <div class="col-6">
                             <a href="{{ route('wallet.index') }}" class="btn btn-success btn-block">
@@ -221,6 +218,57 @@ function copyReferralLink() {
         body: 'Referral link copied to clipboard!',
         delay: 3000
     });
+}
+
+function investFromWallet() {
+    const walletBalance = {{ $wallet->balance ?? 0 }};
+
+    if (walletBalance < 11) { // Minimum $10 + $1 fee
+        alert('Insufficient balance! You need at least $11 (including $1 processing fee) to make an investment.');
+        return;
+    }
+
+    const amount = prompt('Enter investment amount (minimum $10):\n\nInvestment Details:\n• Daily Return: 2%\n• Duration: 30 days\n• Total Return: 60%\n• Processing Fee: $1', '10');
+
+    if (amount === null) {
+        return; // User cancelled
+    }
+
+    const investAmount = parseFloat(amount);
+
+    if (isNaN(investAmount) || investAmount < 10) {
+        alert('Please enter a valid amount (minimum $10)');
+        return;
+    }
+
+    if (investAmount + 1 > walletBalance) {
+        alert('Insufficient balance! You need $' + (investAmount + 1) + ' (including $1 processing fee) but have $' + walletBalance);
+        return;
+    }
+
+    const confirmMessage = `Confirm Investment:\n\nAmount: $${investAmount}\nProcessing Fee: $1\nTotal Deduction: $${investAmount + 1}\n\nDaily Return: 2%\nDuration: 30 days\nExpected Return: $${(investAmount * 0.6).toFixed(2)}\n\nProceed with investment?`;
+
+    if (confirm(confirmMessage)) {
+        // Create a form and submit it
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("wallet.invest") }}';
+
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = '{{ csrf_token() }}';
+
+        const amountInput = document.createElement('input');
+        amountInput.type = 'hidden';
+        amountInput.name = 'amount';
+        amountInput.value = investAmount;
+
+        form.appendChild(csrfToken);
+        form.appendChild(amountInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
 }
 </script>
 @stop
