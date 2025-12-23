@@ -62,6 +62,215 @@
                         </div>
                     </div>
 
+                    <!-- Investment Analytics Section -->
+                    @if($analytics)
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card card-outline card-info">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-chart-bar"></i> Investment Analytics
+                                    </h3>
+                                    <div class="card-tools">
+                                        <span class="badge badge-info" id="last-updated">Live</span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Wallet Overview -->
+                                    <div class="row mb-4">
+                                        <div class="col-md-3 col-sm-6">
+                                            <div class="info-box bg-gradient-primary">
+                                                <span class="info-box-icon"><i class="fas fa-wallet"></i></span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Wallet Balance</span>
+                                                    <span class="info-box-number" id="wallet-balance">{{ number_format($analytics['wallet']['balance'], 2) }} USDT</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6">
+                                            <div class="info-box bg-gradient-success">
+                                                <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Total Invested</span>
+                                                    <span class="info-box-number" id="total-invested">{{ number_format($analytics['wallet']['invested_amount'], 2) }} USDT</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6">
+                                            <div class="info-box bg-gradient-warning">
+                                                <span class="info-box-icon"><i class="fas fa-coins"></i></span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Total Earned</span>
+                                                    <span class="info-box-number" id="total-earned">{{ number_format($analytics['wallet']['earned_amount'], 2) }} USDT</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6">
+                                            <div class="info-box bg-gradient-info">
+                                                <span class="info-box-icon"><i class="fas fa-piggy-bank"></i></span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Total Value</span>
+                                                    <span class="info-box-number" id="total-value">{{ number_format($analytics['wallet']['total_value'], 2) }} USDT</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Interest Generation Stats -->
+                                    <div class="row mb-4">
+                                        <div class="col-12">
+                                            <h5 class="mb-3"><i class="fas fa-percentage"></i> Interest Generation</h5>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6">
+                                            <div class="small-box bg-light">
+                                                <div class="inner">
+                                                    <h4 id="daily-interest">{{ number_format($analytics['investments']['daily_interest'], 2) }} USDT</h4>
+                                                    <p>Daily Interest</p>
+                                                </div>
+                                                <div class="icon">
+                                                    <i class="fas fa-calendar-day"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6">
+                                            <div class="small-box bg-light">
+                                                <div class="inner">
+                                                    <h4 id="weekly-interest">{{ number_format($analytics['investments']['daily_interest'] * 7, 2) }} USDT</h4>
+                                                    <p>Weekly Interest</p>
+                                                </div>
+                                                <div class="icon">
+                                                    <i class="fas fa-calendar-week"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6">
+                                            <div class="small-box bg-light">
+                                                <div class="inner">
+                                                    <h4 id="monthly-interest">{{ number_format($analytics['investments']['monthly_interest'], 2) }} USDT</h4>
+                                                    <p>Monthly Interest</p>
+                                                </div>
+                                                <div class="icon">
+                                                    <i class="fas fa-calendar-alt"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6">
+                                            <div class="small-box bg-light">
+                                                <div class="inner">
+                                                    <h4 id="yearly-interest">{{ number_format($analytics['investments']['yearly_interest'], 2) }} USDT</h4>
+                                                    <p>Yearly Interest</p>
+                                                </div>
+                                                <div class="icon">
+                                                    <i class="fas fa-calendar"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Earnings Breakdown -->
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h3 class="card-title">Weekly Earnings</h3>
+                                                </div>
+                                                <div class="card-body">
+                                                    <canvas id="weeklyChart" height="200"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h3 class="card-title">Monthly Earnings</h3>
+                                                </div>
+                                                <div class="card-body">
+                                                    <canvas id="monthlyChart" height="200"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Interest Breakdown Table -->
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h3 class="card-title">Interest Breakdown</h3>
+                                                </div>
+                                                <div class="card-body p-0">
+                                                    <table class="table table-striped">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Period</th>
+                                                                <th>Earnings</th>
+                                                                <th>Growth</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td><strong>Today</strong></td>
+                                                                <td id="interest-today">{{ number_format($analytics['interest']['today'], 2) }} USDT</td>
+                                                                <td><span class="badge badge-success">Active</span></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><strong>This Week</strong></td>
+                                                                <td id="interest-week">{{ number_format($analytics['interest']['this_week'], 2) }} USDT</td>
+                                                                <td><span class="badge badge-info">{{ number_format($analytics['weekly']['total'], 2) }} USDT</span></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><strong>This Month</strong></td>
+                                                                <td id="interest-month">{{ number_format($analytics['interest']['this_month'], 2) }} USDT</td>
+                                                                <td><span class="badge badge-primary">{{ number_format($analytics['monthly']['total'], 2) }} USDT</span></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><strong>All Time</strong></td>
+                                                                <td id="interest-alltime">{{ number_format($analytics['interest']['all_time'], 2) }} USDT</td>
+                                                                <td><span class="badge badge-warning">Total</span></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Real-time Stats -->
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="info-box">
+                                                <span class="info-box-icon bg-success"><i class="fas fa-arrow-up"></i></span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Growth Rate</span>
+                                                    <span class="info-box-number" id="growth-rate">{{ number_format($analytics['realtime']['growth_percentage'], 2) }}%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="info-box">
+                                                <span class="info-box-icon bg-info"><i class="fas fa-clock"></i></span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Days Active</span>
+                                                    <span class="info-box-number" id="days-active">{{ $analytics['realtime']['days_active'] }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="info-box">
+                                                <span class="info-box-icon bg-warning"><i class="fas fa-hourglass-half"></i></span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Days Remaining</span>
+                                                    <span class="info-box-number" id="days-remaining">{{ $analytics['realtime']['days_remaining'] }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                     <!-- Quick Invest Card -->
                     <div class="row">
                         <div class="col-12">
@@ -153,6 +362,7 @@
 @stop
 
 @section('js')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script>
 function copyToClipboard() {
     const referralLink = document.querySelector('input[readonly]');
@@ -171,7 +381,7 @@ function investFromWallet() {
 
     const amount = prompt(`Enter investment amount (Available: ${walletBalance.toFixed(2)} USDT):`);
 
-    if (amount === null) return; // User cancelled
+    if (amount === null) return;
 
     const investmentAmount = parseFloat(amount);
 
@@ -185,13 +395,215 @@ function investFromWallet() {
         return;
     }
 
-    // Show confirmation popup
     const confirmed = confirm(`Confirm Investment:\n\nAmount: ${investmentAmount.toFixed(2)} USDT\nSource: Wallet Balance\n\nProceed with this investment?`);
 
     if (confirmed) {
-        // Redirect to investment plans with amount
         window.location.href = `{{ route('investments.plans') }}?amount=${investmentAmount}&source=wallet`;
     }
 }
+
+@if($analytics)
+// Analytics Charts and Real-time Updates
+let weeklyChart, monthlyChart;
+let updateInterval;
+
+// Initialize charts
+function initCharts() {
+    const weeklyData = @json($analytics['weekly']['data']);
+    const monthlyData = @json($analytics['monthly']['data']);
+
+    // Weekly Chart
+    const weeklyCtx = document.getElementById('weeklyChart');
+    if (weeklyCtx) {
+        weeklyChart = new Chart(weeklyCtx, {
+            type: 'line',
+            data: {
+                labels: weeklyData.map(d => d.day),
+                datasets: [{
+                    label: 'Daily Earnings (USDT)',
+                    data: weeklyData.map(d => d.earnings),
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Earnings: ' + context.parsed.y.toFixed(2) + ' USDT';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(2) + ' USDT';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Monthly Chart
+    const monthlyCtx = document.getElementById('monthlyChart');
+    if (monthlyCtx) {
+        monthlyChart = new Chart(monthlyCtx, {
+            type: 'bar',
+            data: {
+                labels: monthlyData.map(d => d.week_label),
+                datasets: [{
+                    label: 'Weekly Earnings (USDT)',
+                    data: monthlyData.map(d => d.earnings),
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Earnings: ' + context.parsed.y.toFixed(2) + ' USDT';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(2) + ' USDT';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+}
+
+// Update analytics data in real-time
+function updateAnalytics() {
+    fetch('{{ route("analytics.get") }}', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.data) {
+            const analytics = data.data;
+            
+            // Update wallet stats
+            if (analytics.wallet) {
+                updateElement('wallet-balance', analytics.wallet.balance.toFixed(2) + ' USDT');
+                updateElement('total-invested', analytics.wallet.invested_amount.toFixed(2) + ' USDT');
+                updateElement('total-earned', analytics.wallet.earned_amount.toFixed(2) + ' USDT');
+                updateElement('total-value', analytics.wallet.total_value.toFixed(2) + ' USDT');
+            }
+            
+            // Update interest stats
+            if (analytics.investments) {
+                updateElement('daily-interest', analytics.investments.daily_interest.toFixed(2) + ' USDT');
+                updateElement('weekly-interest', (analytics.investments.daily_interest * 7).toFixed(2) + ' USDT');
+                updateElement('monthly-interest', analytics.investments.monthly_interest.toFixed(2) + ' USDT');
+                updateElement('yearly-interest', analytics.investments.yearly_interest.toFixed(2) + ' USDT');
+            }
+            
+            // Update interest breakdown
+            if (analytics.interest) {
+                updateElement('interest-today', analytics.interest.today.toFixed(2) + ' USDT');
+                updateElement('interest-week', analytics.interest.this_week.toFixed(2) + ' USDT');
+                updateElement('interest-month', analytics.interest.this_month.toFixed(2) + ' USDT');
+                updateElement('interest-alltime', analytics.interest.all_time.toFixed(2) + ' USDT');
+            }
+            
+            // Update real-time stats
+            if (analytics.realtime) {
+                updateElement('growth-rate', analytics.realtime.growth_percentage.toFixed(2) + '%');
+                updateElement('days-active', analytics.realtime.days_active);
+                updateElement('days-remaining', analytics.realtime.days_remaining);
+            }
+            
+            // Update charts
+            if (analytics.weekly && weeklyChart) {
+                weeklyChart.data.datasets[0].data = analytics.weekly.data.map(d => d.earnings);
+                weeklyChart.update();
+            }
+            
+            if (analytics.monthly && monthlyChart) {
+                monthlyChart.data.datasets[0].data = analytics.monthly.data.map(d => d.earnings);
+                monthlyChart.update();
+            }
+            
+            // Update last updated badge
+            const now = new Date();
+            document.getElementById('last-updated').textContent = 'Updated ' + now.toLocaleTimeString();
+        }
+    })
+    .catch(error => {
+        console.error('Error updating analytics:', error);
+    });
+}
+
+// Helper function to update element with animation
+function updateElement(id, value) {
+    const element = document.getElementById(id);
+    if (element) {
+        const oldValue = element.textContent;
+        if (oldValue !== value) {
+            element.style.transition = 'all 0.3s ease';
+            element.style.color = '#28a745';
+            element.textContent = value;
+            setTimeout(() => {
+                element.style.color = '';
+            }, 1000);
+        }
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initCharts();
+    
+    // Update analytics every 30 seconds
+    updateInterval = setInterval(updateAnalytics, 30000);
+    
+    // Update immediately after 5 seconds
+    setTimeout(updateAnalytics, 5000);
+});
+
+// Clean up on page unload
+window.addEventListener('beforeunload', function() {
+    if (updateInterval) {
+        clearInterval(updateInterval);
+    }
+});
+@endif
 </script>
 @stop

@@ -68,30 +68,36 @@ function showInvestmentModal(planId, planName, minAmount, maxAmount, source) {
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form action="{{ route('investments.invest') }}" method="POST">
+                    <form id="investForm_${planId}" action="{{ route('investments.invest') }}" method="POST">
                         @csrf
                         <div class="modal-body">
                             <input type="hidden" name="plan_id" value="${planId}">
                             <input type="hidden" name="source" value="${source || 'direct'}">
-                            
+                            <input type="hidden" id="payment_method_${planId}" name="payment_method" value="wallet">
+
                             <div class="form-group">
-                                <label for="amount">Investment Amount ($)</label>
-                                <input type="number" class="form-control" id="amount" name="amount" 
+                                <label for="amount_${planId}">Investment Amount ($)</label>
+                                <input type="number" class="form-control" id="amount_${planId}" name="amount"
                                        min="${minAmount}" max="${maxAmount}" step="0.01" required
                                        value="${minAmount}">
                                 <small class="form-text text-muted">
                                     Min: $${minAmount.toFixed(2)} | Max: $${maxAmount.toFixed(2)}
                                 </small>
                             </div>
-                            
+
                             <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i> 
+                                <i class="fas fa-info-circle"></i>
                                 Your investment will be active immediately after confirmation.
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Confirm Investment</button>
+                            ${source === 'crypto' ?
+                                '<button type="button" class="btn btn-primary" onclick="submitCryptoInvestment(' + planId + ')">Invest through crypto</button>' :
+                                source === 'direct' ?
+                                    '<button type="submit" class="btn btn-primary">Invest through wallet</button>' :
+                                    '<button type="submit" class="btn btn-primary">Invest through wallet</button><button type="button" class="btn btn-primary ml-2" onclick="submitCryptoInvestment(' + planId + ')">Invest through crypto</button>'
+                            }
                         </div>
                     </form>
                 </div>
@@ -104,6 +110,14 @@ function showInvestmentModal(planId, planName, minAmount, maxAmount, source) {
     
     // Show modal
     $(`#${modalId}`).modal('show');
+}
+
+function submitCryptoInvestment(planId) {
+    // Set payment method to crypto
+    $(`#payment_method_${planId}`).val('crypto');
+
+    // Submit the form
+    $(`#investForm_${planId}`).submit();
 }
 </script>
 @endpush

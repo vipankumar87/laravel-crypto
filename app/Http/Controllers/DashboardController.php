@@ -7,10 +7,18 @@ use App\Models\User;
 use App\Models\Wallet;
 use App\Models\Investment;
 use App\Models\Transaction;
+use App\Services\AnalyticsService;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
+    protected $analyticsService;
+
+    public function __construct(AnalyticsService $analyticsService)
+    {
+        $this->analyticsService = $analyticsService;
+    }
+
     public function index()
     {
         $user = Auth::user();
@@ -49,13 +57,20 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Get analytics data if user has investments
+        $analytics = null;
+        if ($activeInvestments > 0) {
+            $analytics = $this->analyticsService->getUserAnalytics($user);
+        }
+
         return view('dashboard', compact(
             'user',
             'wallet',
             'activeInvestments',
             'totalEarnings',
             'referralCount',
-            'recentTransactions'
+            'recentTransactions',
+            'analytics'
         ));
     }
 

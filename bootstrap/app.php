@@ -20,12 +20,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'prevent.system.login' => \App\Http\Middleware\PreventSystemUserLogin::class,
             'ensure.user.role' => \App\Http\Middleware\EnsureUserRole::class,
             'ensure.admin.role' => \App\Http\Middleware\EnsureAdminRole::class,
+            'ensure.crypto.wallet' => \App\Http\Middleware\EnsureCryptoWallet::class,
         ]);
 
-        // Apply banned user check and prevent system login to web routes
+        // Apply banned user check, prevent system login, and ensure crypto wallet to web routes
         $middleware->web([
             \App\Http\Middleware\CheckBannedUser::class,
             \App\Http\Middleware\PreventSystemUserLogin::class,
+            \App\Http\Middleware\EnsureCryptoWallet::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

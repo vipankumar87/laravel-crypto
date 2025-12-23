@@ -21,6 +21,7 @@ class Investment extends Model
         'duration_days',
         'daily_return_rate',
         'status',
+        'payment_method',
         'start_date',
         'end_date',
         'last_earning_date',

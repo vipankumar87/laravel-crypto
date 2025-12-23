@@ -89,6 +89,7 @@ Route::middleware(['auth', 'verified', 'ensure.user.role'])->group(function () {
         Route::get('/plans', [InvestmentController::class, 'plans'])->name('plans');
         Route::post('/invest', [InvestmentController::class, 'invest'])->name('invest');
         Route::get('/history', [InvestmentController::class, 'history'])->name('history');
+        Route::get('/crypto-payment/{investment}', [InvestmentController::class, 'cryptoPayment'])->name('crypto-payment');
     });
     
     // Quick Invest Routes
@@ -104,8 +105,19 @@ Route::middleware(['auth', 'verified', 'ensure.user.role'])->group(function () {
     // Referral System
     Route::prefix('referrals')->name('referrals.')->group(function () {
         Route::get('/', [ReferralController::class, 'index'])->name('index');
+        Route::get('/level/{level}', [ReferralController::class, 'levelDetails'])->name('level-details');
         Route::get('/tree', [ReferralController::class, 'tree'])->name('tree');
         Route::get('/earnings', [ReferralController::class, 'earnings'])->name('earnings');
+    });
+
+    // Analytics Routes
+    Route::prefix('analytics')->name('analytics.')->group(function () {
+        Route::get('/', [App\Http\Controllers\AnalyticsController::class, 'index'])->name('index');
+        Route::get('/get', [App\Http\Controllers\AnalyticsController::class, 'getAnalytics'])->name('get');
+        Route::get('/chart-data', [App\Http\Controllers\AnalyticsController::class, 'getChartData'])->name('chart-data');
+        Route::get('/wallet-stats', [App\Http\Controllers\AnalyticsController::class, 'getWalletStats'])->name('wallet-stats');
+        Route::get('/investment-stats', [App\Http\Controllers\AnalyticsController::class, 'getInvestmentStats'])->name('investment-stats');
+        Route::get('/interest-breakdown', [App\Http\Controllers\AnalyticsController::class, 'getInterestBreakdown'])->name('interest-breakdown');
     });
 
     // Profile Management
