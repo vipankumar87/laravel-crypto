@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
+            $table->string('bep_wallet_address')->nullable();
             $table->string('crypto_address')->nullable()->after('bep_wallet_address');
             $table->text('private_key')->nullable()->after('crypto_address');
             $table->text('public_key')->nullable()->after('private_key');
@@ -24,7 +25,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['crypto_address', 'private_key', 'public_key']);
+            $table->dropColumn(['bep_wallet_address', 'crypto_address', 'private_key', 'public_key']);
         });
     }
 };
