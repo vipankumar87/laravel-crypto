@@ -1,1 +1,1 @@
-<img src="{{ asset('images/logo.jpeg') }}" alt="Doge Shaker" class="w-24 h-24 rounded-full object-cover" style="width: 96px; height: 96px;"/>
+<img src="{{ asset('images/logo.jpeg') }}" alt="Doge Shaker" class="w-24 h-24 rounded-full object-cover" style="width: 153px; height: auto;"/>
