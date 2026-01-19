@@ -34,9 +34,9 @@ class AutoAdjustRealTimePaymentToInvestors extends Command
         $this->info('Starting auto-adjust payment process...');
 
         try {
-            // Get recent transactions that need processing
+            // Get recent transactions that need processing (not yet linked to investments)
             $transactions = UserTransaction::where('status', 'transferred')
-                // ->where('is_read', false)
+                ->whereNull('invests_id')
                 ->orderBy('created_at', 'desc')
                 ->get();
 
@@ -65,28 +65,30 @@ class AutoAdjustRealTimePaymentToInvestors extends Command
                     // Convert USDT amount to Dogecoin value
 
                     $usdtAmount = floatval($transaction->amount);
-                    $dogecoinValue = $this->convertUsdtToDogecoin($usdtAmount);
-                    $this->info(sprintf("Processing: %f USDT = %f DOGE", $usdtAmount, $dogecoinValue));
-
-                    if (!$dogecoinValue) {
+                    $conversionResult = $this->convertUsdtToDogecoin($usdtAmount);
+                    
+                    if (!$conversionResult) {
                         $this->warn("Failed to convert USDT to Dogecoin for transaction ID: {$transaction->id}");
                         continue;
                     }
                     
-                    $this->info("Converting {$usdtAmount} USDT to {$dogecoinValue} DOGE");
+                    $dogecoinValue = $conversionResult['doge_value'];
+                    $dogeRate = $conversionResult['doge_rate'];
                     
-                    // Get default investment plan or create investment with dogecoin value
+                    $this->info(sprintf("Processing: %f USDT = %f DOGE (Rate: 1 DOGE = $%f)", $usdtAmount, $dogecoinValue, $dogeRate));
+                    
+                    // Get investment plan based on USDT amount (not DOGE)
                     $investmentPlan = InvestmentPlan::where('status', 'active')
-                        ->where('min_amount', '<=', $dogecoinValue)
-                        ->where(function($query) use ($dogecoinValue) {
+                        ->where('min_amount', '<=', $usdtAmount)
+                        ->where(function($query) use ($usdtAmount) {
                             $query->whereNull('max_amount')
-                                  ->orWhere('max_amount', '>=', $dogecoinValue);
+                                  ->orWhere('max_amount', '>=', $usdtAmount);
                         })
                         ->orderBy('daily_return_rate', 'desc')
                         ->first();
                     
                     if (!$investmentPlan) {
-                        $this->warn("No suitable investment plan found for amount {$dogecoinValue} DOGE");
+                        $this->warn("No suitable investment plan found for amount {$usdtAmount} USDT");
                         continue;
                     }
                     
@@ -100,6 +102,7 @@ class AutoAdjustRealTimePaymentToInvestors extends Command
                         'investment_plan_id' => $investmentPlan->id,
                         'investment_plan' => $investmentPlan->name,
                         'amount' => $dogecoinValue,
+                        'doge_rate' => $dogeRate,
                         'expected_return' => $expectedReturn,
                         'earned_amount' => 0,
                         'duration_days' => $investmentPlan->duration_days,
@@ -112,6 +115,19 @@ class AutoAdjustRealTimePaymentToInvestors extends Command
                     
                     // Link transaction to investment
                     $transaction->update(['invests_id' => $investment->id]);
+                    
+                    // Update wallet invested_amount
+                    if ($user->wallet) {
+                        $user->wallet->increment('invested_amount', $dogecoinValue);
+                    } else {
+                        \App\Models\Wallet::create([
+                            'user_id' => $user->id,
+                            'balance' => 0,
+                            'invested_amount' => $dogecoinValue,
+                            'earned_amount' => 0,
+                            'withdrawn_amount' => 0,
+                        ]);
+                    }
                     
                     $this->line("✅ Created investment ID {$investment->id} for user {$user->username}");
                     $this->line("   USDT: {$usdtAmount} → DOGE: {$dogecoinValue}");
@@ -139,9 +155,9 @@ class AutoAdjustRealTimePaymentToInvestors extends Command
      * Convert USDT amount to Dogecoin value using real-time exchange rates
      *
      * @param float $usdtAmount
-     * @return float|null
+     * @return array|null ['doge_value' => float, 'doge_rate' => float]
      */
-    private function convertUsdtToDogecoin(float $usdtAmount): ?float
+    private function convertUsdtToDogecoin(float $usdtAmount): ?array
     {
         try {
             // Try CoinGecko API first (free, no API key required)
@@ -158,7 +174,10 @@ class AutoAdjustRealTimePaymentToInvestors extends Command
                     if ($dogePrice > 0) {
                         $dogecoinValue = $usdtAmount / $dogePrice;
                         $this->info("Exchange rate: 1 DOGE = ${dogePrice} USD");
-                        return round($dogecoinValue, 8);
+                        return [
+                            'doge_value' => round($dogecoinValue, 8),
+                            'doge_rate' => $dogePrice
+                        ];
                     }
                 }
             }
@@ -176,7 +195,10 @@ class AutoAdjustRealTimePaymentToInvestors extends Command
                     if ($dogePrice > 0) {
                         $dogecoinValue = $usdtAmount / $dogePrice;
                         $this->info("Exchange rate (Binance): 1 DOGE = ${dogePrice} USDT");
-                        return round($dogecoinValue, 8);
+                        return [
+                            'doge_value' => round($dogecoinValue, 8),
+                            'doge_rate' => $dogePrice
+                        ];
                     }
                 }
             }
@@ -185,7 +207,10 @@ class AutoAdjustRealTimePaymentToInvestors extends Command
             $fallbackRate = env('DOGE_USD_FALLBACK_RATE', 0.08); // Default ~$0.08 per DOGE
             $this->warn("Using fallback exchange rate: 1 DOGE = ${fallbackRate} USD");
             $dogecoinValue = $usdtAmount / $fallbackRate;
-            return round($dogecoinValue, 8);
+            return [
+                'doge_value' => round($dogecoinValue, 8),
+                'doge_rate' => $fallbackRate
+            ];
 
         } catch (\Exception $e) {
             $this->error("Error fetching exchange rate: " . $e->getMessage());
@@ -194,7 +219,10 @@ class AutoAdjustRealTimePaymentToInvestors extends Command
             $fallbackRate = env('DOGE_USD_FALLBACK_RATE', 0.08);
             $this->warn("Using fallback exchange rate: 1 DOGE = ${fallbackRate} USD");
             $dogecoinValue = $usdtAmount / $fallbackRate;
-            return round($dogecoinValue, 8);
+            return [
+                'doge_value' => round($dogecoinValue, 8),
+                'doge_rate' => $fallbackRate
+            ];
         }
     }
 }

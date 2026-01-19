@@ -92,7 +92,7 @@
                                                 <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Total Invested</span>
-                                                    <span class="info-box-number" id="total-invested">{{ number_format($analytics['wallet']['invested_amount'], 2) }} USDT</span>
+                                                    <span class="info-box-number" id="total-invested">{{ number_format($analytics['wallet']['invested_amount'], 8) }} DOGE</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -101,7 +101,7 @@
                                                 <span class="info-box-icon"><i class="fas fa-coins"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Total Earned</span>
-                                                    <span class="info-box-number" id="total-earned">{{ number_format($analytics['wallet']['earned_amount'], 2) }} USDT</span>
+                                                    <span class="info-box-number" id="total-earned">{{ number_format($analytics['wallet']['earned_amount'], 8) }} DOGE</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -110,7 +110,7 @@
                                                 <span class="info-box-icon"><i class="fas fa-piggy-bank"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Total Value</span>
-                                                    <span class="info-box-number" id="total-value">{{ number_format($analytics['wallet']['total_value'], 2) }} USDT</span>
+                                                    <span class="info-box-number" id="total-value">{{ number_format($analytics['wallet']['total_value'], 8) }} DOGE</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -124,7 +124,7 @@
                                         <div class="col-md-3 col-sm-6">
                                             <div class="small-box bg-light">
                                                 <div class="inner">
-                                                    <h4 id="daily-interest">{{ number_format($analytics['investments']['daily_interest'], 2) }} USDT</h4>
+                                                    <h4 id="daily-interest">{{ number_format($analytics['investments']['daily_interest'], 8) }} DOGE</h4>
                                                     <p>Daily Interest</p>
                                                 </div>
                                                 <div class="icon">
@@ -135,7 +135,7 @@
                                         <div class="col-md-3 col-sm-6">
                                             <div class="small-box bg-light">
                                                 <div class="inner">
-                                                    <h4 id="weekly-interest">{{ number_format($analytics['investments']['daily_interest'] * 7, 2) }} USDT</h4>
+                                                    <h4 id="weekly-interest">{{ number_format($analytics['investments']['daily_interest'] * 7, 8) }} DOGE</h4>
                                                     <p>Weekly Interest</p>
                                                 </div>
                                                 <div class="icon">
@@ -146,7 +146,7 @@
                                         <div class="col-md-3 col-sm-6">
                                             <div class="small-box bg-light">
                                                 <div class="inner">
-                                                    <h4 id="monthly-interest">{{ number_format($analytics['investments']['monthly_interest'], 2) }} USDT</h4>
+                                                    <h4 id="monthly-interest">{{ number_format($analytics['investments']['monthly_interest'], 8) }} DOGE</h4>
                                                     <p>Monthly Interest</p>
                                                 </div>
                                                 <div class="icon">
@@ -157,7 +157,7 @@
                                         <div class="col-md-3 col-sm-6">
                                             <div class="small-box bg-light">
                                                 <div class="inner">
-                                                    <h4 id="yearly-interest">{{ number_format($analytics['investments']['yearly_interest'], 2) }} USDT</h4>
+                                                    <h4 id="yearly-interest">{{ number_format($analytics['investments']['yearly_interest'], 8) }} DOGE</h4>
                                                     <p>Yearly Interest</p>
                                                 </div>
                                                 <div class="icon">

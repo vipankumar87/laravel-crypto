@@ -228,8 +228,8 @@
                         <a href="{{ route('investments.index') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Back to Investments
                         </a>
-                        <button type="button" class="btn btn-success" id="confirmPaymentBtn">
-                            <i class="fas fa-check"></i> Mark Payment as Complete (Demo)
+                        <button type="button" class="btn btn-success" onclick="checkPaymentNow()">
+                            <i class="fas fa-sync-alt"></i> Check Payment Now
                         </button>
                     </div>
                 </div>
@@ -278,6 +278,59 @@
                     <h3 class="text-warning" id="timer">30:00</h3>
                     <small class="text-muted">Investment created: {{ $investment->created_at->diffForHumans() }}</small>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Result Modal -->
+<div class="modal fade" id="paymentResultModal" tabindex="-1" role="dialog" aria-labelledby="paymentResultModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="paymentResultModalLabel">
+                    <i class="fas fa-check-circle"></i> Payment Processed
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <i class="fas fa-coins fa-3x text-success mb-3"></i>
+                    <h4 id="modalMessage">Processing...</h4>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <p class="text-muted mb-1">Amount Found (USDT)</p>
+                                <h4 class="text-primary" id="amountFound">0.00</h4>
+                            </div>
+                            <div class="col-6">
+                                <p class="text-muted mb-1">Dogecoin Invested</p>
+                                <h4 class="text-warning" id="dogeInvested">0.00000000</h4>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-6">
+                                <p class="text-muted mb-1">Transactions</p>
+                                <h5 id="transactionsCount">0</h5>
+                            </div>
+                            <div class="col-6">
+                                <p class="text-muted mb-1">Investments</p>
+                                <h5 id="investmentsCount">0</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{{ route('investments.index') }}" class="btn btn-primary">
+                    <i class="fas fa-list"></i> View Investments
+                </a>
             </div>
         </div>
     </div>
@@ -406,6 +459,100 @@ document.addEventListener('DOMContentLoaded', function() {
 
     setInterval(updateRefreshCounter, 1000);
     updateRefreshCounter();
+
+    // Check for new transactions automatically
+    let checkInterval;
+    let isChecking = false;
+
+    // Function to check for new transactions and process payment
+    function checkForNewTransactions() {
+        if (isChecking) {
+            console.log('Already checking, skipping...');
+            return;
+        }
+        
+        isChecking = true;
+        console.log('Checking for new transactions...');
+        
+        // Show checking message
+        showNotification('info', 'Checking for new transactions...');
+        
+        $.ajax({
+            url: '{{ route('investments.process-payment') }}',
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                isChecking = false;
+                
+                if (response.success === true) {
+                    console.log('Payment processed:', response);
+                    
+                    // Update modal with data
+                    $('#modalMessage').text(response.message);
+                    $('#amountFound').text(response.data.amount_found + ' USDT');
+                    $('#dogeInvested').text(response.data.doge_invested + ' DOGE');
+                    $('#transactionsCount').text(response.data.transactions_count);
+                    $('#investmentsCount').text(response.data.investments_count);
+                    
+                    // Show the modal
+                    $('#paymentResultModal').modal('show');
+                    
+                    // Stop checking after successful payment
+                    clearInterval(checkInterval);
+                    
+                    // Show success message on screen
+                    showNotification('success', response.message);
+                } else {
+                    console.log('No new transactions found');
+                }
+            },
+            error: function(xhr, status, error) {
+                isChecking = false;
+                console.error('Error checking transactions:', error);
+                showNotification('error', 'Error checking transactions. Will retry...');
+            }
+        });
+    }
+
+    // Start checking after 5 seconds
+    setTimeout(function() {
+        showNotification('info', 'Starting automatic payment detection...');
+        checkForNewTransactions();
+        
+        // Then check every 5 seconds
+        checkInterval = setInterval(checkForNewTransactions, 5000);
+    }, 5000);
+
+    // Manual check button
+    window.checkPaymentNow = function() {
+        showNotification('info', 'Checking for new transactions...');
+        checkForNewTransactions();
+    };
+
+    // Function to show notification
+    function showNotification(type, message) {
+        const alertClass = type === 'success' ? 'alert-success' : type === 'error' ? 'alert-danger' : 'alert-info';
+        const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+        
+        const notification = $(`
+            <div class="alert ${alertClass} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                <i class="fas ${icon}"></i> ${message}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        `);
+        
+        $('body').append(notification);
+        
+        setTimeout(function() {
+            notification.fadeOut(function() {
+                $(this).remove();
+            });
+        }, 5000);
+    }
 });
 </script>
 @stop

@@ -44,9 +44,14 @@
                             @forelse($investments as $investment)
                                 <tr>
                                     <td>{{ $investment->investment_plan }}</td>
-                                    <td>${{ number_format($investment->amount, 2) }}</td>
+                                    <td>
+                                        {{ number_format($investment->amount, 8) }} DOGE
+                                        @if($investment->doge_rate)
+                                            <br><small class="text-muted">@ ${{ number_format($investment->doge_rate, 4) }}/DOGE</small>
+                                        @endif
+                                    </td>
                                     <td>{{ number_format($investment->daily_return_rate, 2) }}%</td>
-                                    <td>${{ number_format($investment->expected_return, 2) }}</td>
+                                    <td>{{ number_format($investment->expected_return, 8) }} DOGE</td>
                                     <td>{{ $investment->duration_days }} days</td>
                                     <td>{{ $investment->start_date->format('M d, Y') }}</td>
                                     <td>{{ $investment->end_date->format('M d, Y') }}</td>

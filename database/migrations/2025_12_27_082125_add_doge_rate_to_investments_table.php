@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->boolean('pending_payment')->default(0)->after('private_key');
+        Schema::table('investments', function (Blueprint $table) {
+            $table->decimal('doge_rate', 16, 8)->nullable()->after('amount')->comment('DOGE/USD exchange rate at time of investment');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('pending_payment');
+        Schema::table('investments', function (Blueprint $table) {
+            $table->dropColumn('doge_rate');
         });
     }
 };

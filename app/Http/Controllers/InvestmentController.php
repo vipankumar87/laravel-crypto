@@ -199,4 +199,81 @@ class InvestmentController extends Controller
 
         return view('investments.history', compact('investments'));
     }
+
+    public function processPayment(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            
+            // Get count of investments before running command
+            $investmentsBefore = \App\Models\Investment::where('user_id', $user->id)
+                ->where('status', 'active')
+                ->count();
+            
+            // Run the Laravel command
+            \Artisan::call('app:auto-adjust-real-time-payment-to-investors');
+            
+            // Get the command output
+            $output = \Artisan::output();
+            
+            // Get count of investments after running command
+            $investmentsAfter = \App\Models\Investment::where('user_id', $user->id)
+                ->where('status', 'active')
+                ->count();
+            
+            // Calculate how many new investments were created
+            $newInvestmentsCount = $investmentsAfter - $investmentsBefore;
+            
+            // Only return success if new investments were created
+            if ($newInvestmentsCount > 0) {
+                // Get the newly created investments
+                $newInvestments = \App\Models\Investment::where('user_id', $user->id)
+                    ->where('status', 'active')
+                    ->orderBy('created_at', 'desc')
+                    ->take($newInvestmentsCount)
+                    ->get();
+                
+                // Get the corresponding transactions
+                $transactionIds = $newInvestments->pluck('id');
+                $newTransactions = \App\Models\UserTransaction::where('user_id', $user->id)
+                    ->whereIn('invests_id', $transactionIds)
+                    ->get();
+                
+                // Calculate totals
+                $totalAmountFound = $newTransactions->sum('amount');
+                $totalDogeInvested = $newInvestments->sum('amount');
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Payment processed successfully!',
+                    'data' => [
+                        'amount_found' => number_format($totalAmountFound, 2),
+                        'doge_invested' => number_format($totalDogeInvested, 8),
+                        'transactions_count' => $newTransactions->count(),
+                        'investments_count' => $newInvestmentsCount,
+                        'command_output' => $output
+                    ]
+                ]);
+            } else {
+                // No new transactions found
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No new transactions found',
+                    'data' => [
+                        'amount_found' => '0.00',
+                        'doge_invested' => '0.00000000',
+                        'transactions_count' => 0,
+                        'investments_count' => 0,
+                        'command_output' => $output
+                    ]
+                ]);
+            }
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error processing payment: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

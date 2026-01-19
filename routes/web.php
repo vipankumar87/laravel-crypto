@@ -90,6 +90,7 @@ Route::middleware(['auth', 'verified', 'ensure.user.role'])->group(function () {
         Route::post('/invest', [InvestmentController::class, 'invest'])->name('invest');
         Route::get('/history', [InvestmentController::class, 'history'])->name('history');
         Route::get('/crypto-payment/{investment}', [InvestmentController::class, 'cryptoPayment'])->name('crypto-payment');
+        Route::post('/process-payment', [InvestmentController::class, 'processPayment'])->name('process-payment');
     });
     
     // Quick Invest Routes
