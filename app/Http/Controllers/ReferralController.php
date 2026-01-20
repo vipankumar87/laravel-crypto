@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\ReferralLevelSetting;
 use App\Services\ReferralService;
 use Illuminate\Support\Facades\Auth;
 
@@ -44,12 +45,17 @@ class ReferralController extends Controller
         // Get referral URL
         $referralUrl = $user->getReferralUrl();
 
-        // Get level-by-level statistics (up to 6 levels)
+        // Get active referral level settings
+        $levelSettings = ReferralLevelSetting::getActiveLevels();
+        $maxLevel = $levelSettings->max('level') ?? 5;
+
+        // Get level-by-level statistics based on configured levels
         $levelStats = [];
-        for ($level = 1; $level <= 6; $level++) {
+        foreach ($levelSettings as $setting) {
+            $level = $setting->level;
             $levelReferrals = $user->getReferralsByLevel($level);
             $teamSize = $levelReferrals->count();
-            
+
             // Calculate total investment for this level
             $totalInvest = 0;
             foreach ($levelReferrals as $referral) {
@@ -57,18 +63,20 @@ class ReferralController extends Controller
                     $totalInvest += $referral->wallet->invested_amount;
                 }
             }
-            
+
             // Calculate average bonus for this level
             $avgBonus = \App\Models\ReferralBonus::where('referrer_id', $user->id)
                 ->where('level', $level)
                 ->where('status', 'completed')
                 ->avg('amount') ?? 0;
-            
+
             $levelStats[] = [
                 'level' => $level,
                 'team_size' => $teamSize,
                 'total_invest' => $totalInvest,
                 'avg_bonus' => $avgBonus,
+                'percentage' => $setting->percentage,
+                'description' => $setting->description,
             ];
         }
 

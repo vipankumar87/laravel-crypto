@@ -5,34 +5,67 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\Investment;
 use App\Models\ReferralBonus;
+use App\Models\ReferralLevelSetting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class ReferralService
 {
-    // Default 5-level referral bonus percentages
-    protected $levelPercentages = [
-        1 => 10.0,  // Level 1: 10% of investment
-        2 => 5.0,   // Level 2: 5% of investment
-        3 => 3.0,   // Level 3: 3% of investment
-        4 => 2.0,   // Level 4: 2% of investment
-        5 => 1.0,   // Level 5: 1% of investment
-    ];
+    protected $levelPercentages = [];
 
     public function __construct()
     {
-        // Load percentages from config if available
-        if (config('referral.level_percentages')) {
-            $this->levelPercentages = config('referral.level_percentages');
+        $this->loadLevelPercentages();
+    }
+
+    /**
+     * Load level percentages from database with caching
+     */
+    protected function loadLevelPercentages()
+    {
+        $this->levelPercentages = Cache::remember('referral_level_percentages', 3600, function () {
+            try {
+                return ReferralLevelSetting::getLevelPercentages();
+            } catch (\Exception $e) {
+                // Fallback to defaults if table doesn't exist yet
+                return [
+                    1 => 10.0,
+                    2 => 5.0,
+                    3 => 3.0,
+                    4 => 2.0,
+                    5 => 1.0,
+                ];
+            }
+        });
+
+        // If empty, use defaults
+        if (empty($this->levelPercentages)) {
+            $this->levelPercentages = [
+                1 => 10.0,
+                2 => 5.0,
+                3 => 3.0,
+                4 => 2.0,
+                5 => 1.0,
+            ];
         }
     }
 
     /**
-     * Distribute referral bonuses across 5 levels when user makes an investment
+     * Clear the cached level percentages
+     */
+    public static function clearCache()
+    {
+        Cache::forget('referral_level_percentages');
+    }
+
+    /**
+     * Distribute referral bonuses across configured levels when user makes an investment
      */
     public function distributeInvestmentBonuses(User $user, Investment $investment)
     {
-        $uplineChain = $user->getUplineChain(5);
+        $maxLevel = $this->getMaxLevel();
+        $uplineChain = $user->getUplineChain($maxLevel);
         $investmentAmount = $investment->amount;
         $bonusesDistributed = [];
 
@@ -142,7 +175,8 @@ class ReferralService
         }
 
         // Fill in missing levels with zeros
-        for ($level = 1; $level <= 5; $level++) {
+        $maxLevel = $this->getMaxLevel();
+        for ($level = 1; $level <= $maxLevel; $level++) {
             if (!isset($stats['earnings_by_level'][$level])) {
                 $stats['earnings_by_level'][$level] = [
                     'total' => 0,
@@ -153,7 +187,7 @@ class ReferralService
         }
 
         // Get referral counts by level
-        $referralCounts = $user->getReferralCountByLevel(5);
+        $referralCounts = $user->getReferralCountByLevel($maxLevel);
         foreach ($referralCounts as $level => $count) {
             $stats['referrals_by_level'][$level] = $count;
             $stats['total_referrals'] += $count;
@@ -165,8 +199,9 @@ class ReferralService
     /**
      * Get detailed referral tree for a user
      */
-    public function getReferralTree(User $user, $maxLevels = 5)
+    public function getReferralTree(User $user, $maxLevels = null)
     {
+        $maxLevels = $maxLevels ?? $this->getMaxLevel();
         $tree = [];
 
         for ($level = 1; $level <= $maxLevels; $level++) {
@@ -221,11 +256,31 @@ class ReferralService
     }
 
     /**
+     * Get maximum configured level
+     */
+    public function getMaxLevel()
+    {
+        if (empty($this->levelPercentages)) {
+            return 5;
+        }
+        return max(array_keys($this->levelPercentages));
+    }
+
+    /**
      * Set custom level percentages
      */
     public function setLevelPercentages(array $percentages)
     {
         $this->levelPercentages = $percentages;
+    }
+
+    /**
+     * Reload level percentages from database
+     */
+    public function reloadLevelPercentages()
+    {
+        self::clearCache();
+        $this->loadLevelPercentages();
     }
 
     /**

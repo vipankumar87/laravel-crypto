@@ -1,9 +1,9 @@
 @extends('layouts.user')
 
-@section('title', 'Referral Earnings - 5 Level System')
+@section('title', 'Referral Earnings - Multi-Level System')
 
 @section('content_header')
-    <h1>Referral Earnings <small>5-Level Bonus System</small></h1>
+    <h1>Referral Earnings <small>{{ count($levelPercentages) }}-Level Bonus System</small></h1>
 @stop
 
 @section('content')
@@ -44,7 +44,7 @@
         <div class="col-12">
             <div class="card card-primary">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-layer-group"></i> 5-Level Bonus Breakdown</h3>
+                    <h3 class="card-title"><i class="fas fa-layer-group"></i> {{ count($levelPercentages) }}-Level Bonus Breakdown</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -97,15 +97,20 @@
 
                     <!-- Level Explanation -->
                     <div class="alert alert-info mt-3">
-                        <h5><i class="fas fa-info-circle"></i> How the 5-Level System Works:</h5>
+                        <h5><i class="fas fa-info-circle"></i> How the {{ count($levelPercentages) }}-Level System Works:</h5>
                         <ul class="mb-0">
-                            <li><strong>Level 1 ({{ $levelPercentages[1] }}%):</strong> Direct referrals - People you personally invite</li>
-                            <li><strong>Level 2 ({{ $levelPercentages[2] }}%):</strong> Referrals made by your Level 1 referrals</li>
-                            <li><strong>Level 3 ({{ $levelPercentages[3] }}%):</strong> Referrals made by your Level 2 referrals</li>
-                            <li><strong>Level 4 ({{ $levelPercentages[4] }}%):</strong> Referrals made by your Level 3 referrals</li>
-                            <li><strong>Level 5 ({{ $levelPercentages[5] }}%):</strong> Referrals made by your Level 4 referrals</li>
+                            @foreach($levelPercentages as $level => $percentage)
+                                <li>
+                                    <strong>Level {{ $level }} ({{ number_format($percentage, 2) }}%):</strong>
+                                    @if($level == 1)
+                                        Direct referrals - People you personally invite
+                                    @else
+                                        Referrals made by your Level {{ $level - 1 }} referrals
+                                    @endif
+                                </li>
+                            @endforeach
                         </ul>
-                        <p class="mt-2 mb-0"><strong>Note:</strong> You earn a percentage of each investment made by users in your downline network up to 5 levels deep!</p>
+                        <p class="mt-2 mb-0"><strong>Note:</strong> You earn a percentage of each investment made by users in your downline network up to {{ count($levelPercentages) }} levels deep!</p>
                     </div>
                 </div>
             </div>

@@ -117,6 +117,7 @@
                                 <tr>
                                     <th style="border: none; padding: 20px;">S.No</th>
                                     <th style="border: none; padding: 20px;">Level</th>
+                                    <th style="border: none; padding: 20px;">Bonus %</th>
                                     <th style="border: none; padding: 20px;">Team Size</th>
                                     <th style="border: none; padding: 20px;">Total Invest</th>
                                     <th style="border: none; padding: 20px;">Avg Bonus</th>
@@ -128,14 +129,19 @@
                                     <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
                                         <td style="padding: 20px;">{{ $index + 1 }}</td>
                                         <td style="padding: 20px;">
-                                            <span class="badge badge-{{ 
-                                                $stat['level'] == 1 ? 'success' : 
-                                                ($stat['level'] == 2 ? 'info' : 
-                                                ($stat['level'] == 3 ? 'warning' : 
-                                                ($stat['level'] == 4 ? 'primary' : 
+                                            <span class="badge badge-{{
+                                                $stat['level'] == 1 ? 'success' :
+                                                ($stat['level'] == 2 ? 'info' :
+                                                ($stat['level'] == 3 ? 'warning' :
+                                                ($stat['level'] == 4 ? 'primary' :
                                                 ($stat['level'] == 5 ? 'secondary' : 'dark'))))
                                             }}" style="font-size: 14px; padding: 8px 15px;">
                                                 Level {{ $stat['level'] }}
+                                            </span>
+                                        </td>
+                                        <td style="padding: 20px;">
+                                            <span class="badge badge-success" style="font-size: 14px; padding: 8px 12px;">
+                                                {{ number_format($stat['percentage'] ?? 0, 2) }}%
                                             </span>
                                         </td>
                                         <td style="padding: 20px;">
@@ -163,7 +169,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="text-center" style="padding: 40px;">
+                                        <td colspan="7" class="text-center" style="padding: 40px;">
                                             <i class="fas fa-users fa-3x mb-3" style="opacity: 0.3;"></i>
                                             <h5 style="opacity: 0.7;">No referrals yet</h5>
                                             <p style="opacity: 0.5;">Share your referral link to start building your team!</p>
@@ -184,9 +190,15 @@
             <div class="alert alert-info">
                 <h5><i class="fas fa-info-circle"></i> How the Referral System Works:</h5>
                 <ul class="mb-0">
-                    <li><strong>Level 1:</strong> Your direct referrals - People you personally invite</li>
-                    <li><strong>Level 2:</strong> Referrals made by your Level 1 team members</li>
-                    <li><strong>Level 3-6:</strong> Deeper levels of your network hierarchy</li>
+                    @foreach($levelStats as $stat)
+                        <li><strong>Level {{ $stat['level'] }} ({{ number_format($stat['percentage'] ?? 0, 2) }}%):</strong>
+                            @if($stat['level'] == 1)
+                                Your direct referrals - People you personally invite
+                            @else
+                                {{ $stat['description'] ?? 'Referrals from Level ' . ($stat['level'] - 1) . ' members' }}
+                            @endif
+                        </li>
+                    @endforeach
                 </ul>
                 <p class="mt-2 mb-0"><strong>Note:</strong> You earn bonuses from investments made by all members in your downline network!</p>
             </div>

@@ -347,6 +347,12 @@ return [
             'icon' => 'fas fa-fw fa-money-bill-wave',
             'can' => 'access-admin-features',
         ],
+        [
+            'text' => 'Referral Settings',
+            'route' => 'admin.referral-settings.index',
+            'icon' => 'fas fa-fw fa-sitemap',
+            'can' => 'access-admin-features',
+        ],
 
         // REGULAR USER-ONLY SECTIONS
         [

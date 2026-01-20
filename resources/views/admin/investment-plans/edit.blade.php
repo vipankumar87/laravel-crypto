@@ -118,17 +118,6 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="referral_bonus_rate">Referral Bonus Rate (%) *</label>
-                            <input type="number" class="form-control @error('referral_bonus_rate') is-invalid @enderror"
-                                   id="referral_bonus_rate" name="referral_bonus_rate" value="{{ old('referral_bonus_rate', $plan->referral_bonus_rate ?? 0) }}"
-                                   step="0.01" min="0" max="100" required>
-                            @error('referral_bonus_rate')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
                             <label for="max_investors">Max Investors (0 = unlimited)</label>
                             <input type="number" class="form-control @error('max_investors') is-invalid @enderror"
                                    id="max_investors" name="max_investors" value="{{ old('max_investors', $plan->max_investors ?? 0) }}"

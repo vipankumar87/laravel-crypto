@@ -58,10 +58,6 @@
                             <td>{{ $plan->duration_days ?? 0 }} days</td>
                         </tr>
                         <tr>
-                            <th>Referral Bonus Rate:</th>
-                            <td>{{ number_format($plan->referral_bonus_rate ?? 0, 2) }}%</td>
-                        </tr>
-                        <tr>
                             <th>Max Investors:</th>
                             <td>{{ $plan->max_investors ?? 0 == 0 ? 'Unlimited' : number_format($plan->max_investors ?? 0) }}</td>
                         </tr>

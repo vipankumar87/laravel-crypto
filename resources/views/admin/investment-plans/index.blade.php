@@ -34,7 +34,6 @@
                         <th>Daily Rate</th>
                         <th>Total Rate</th>
                         <th>Duration</th>
-                        <th>Referral Bonus</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -48,7 +47,6 @@
                             <td>{{ number_format($plan->daily_return_rate, 2) }}%</td>
                             <td>{{ number_format($plan->total_return_rate, 2) }}%</td>
                             <td>{{ $plan->duration_days }} days</td>
-                            <td>{{ number_format($plan->referral_bonus_rate, 2) }}%</td>
                             <td>
                                 <span class="badge badge-{{ $plan->status === 'active' ? 'success' : 'secondary' }}">
                                     {{ ucfirst($plan->status) }}
@@ -74,7 +72,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center text-muted">No investment plans found</td>
+                            <td colspan="8" class="text-center text-muted">No investment plans found</td>
                         </tr>
                     @endforelse
                 </tbody>

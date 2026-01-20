@@ -149,6 +149,12 @@ Route::middleware(['auth', 'ensure.admin.role'])->prefix('admin')->name('admin.'
     // Investment Plans Management
     Route::resource('investment-plans', App\Http\Controllers\Admin\InvestmentPlanController::class);
 
+    // Referral Level Settings
+    Route::get('/referral-settings', [App\Http\Controllers\Admin\ReferralSettingsController::class, 'index'])->name('referral-settings.index');
+    Route::put('/referral-settings', [App\Http\Controllers\Admin\ReferralSettingsController::class, 'update'])->name('referral-settings.update');
+    Route::post('/referral-settings', [App\Http\Controllers\Admin\ReferralSettingsController::class, 'store'])->name('referral-settings.store');
+    Route::delete('/referral-settings/{referralSetting}', [App\Http\Controllers\Admin\ReferralSettingsController::class, 'destroy'])->name('referral-settings.destroy');
+
     // Transaction Management
     Route::get('/transactions', [App\Http\Controllers\Admin\AdminController::class, 'transactions'])->name('transactions.index');
     Route::post('/transactions/{transaction}/approve', [App\Http\Controllers\Admin\UserManagementController::class, 'approveTransaction'])->name('transactions.approve');
