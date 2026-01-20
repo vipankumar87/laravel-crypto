@@ -32,6 +32,7 @@ class Investment extends Model
         'expected_return' => 'decimal:2',
         'earned_amount' => 'decimal:2',
         'daily_return_rate' => 'decimal:2',
+        'duration_days' => 'integer',
         'start_date' => 'datetime',
         'end_date' => 'datetime',
         'last_earning_date' => 'datetime',

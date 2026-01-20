@@ -28,6 +28,8 @@ class InvestmentPlan extends Model
         'daily_return_rate' => 'decimal:2',
         'total_return_rate' => 'decimal:2',
         'referral_bonus_rate' => 'decimal:2',
+        'duration_days' => 'integer',
+        'max_investors' => 'integer',
     ];
 
     // Relationships
