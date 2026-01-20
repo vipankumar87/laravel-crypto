@@ -153,7 +153,7 @@ class InvestmentController extends Controller
         $user = Auth::user();
 
         // Ensure the investment belongs to the authenticated user
-        if ($investment->user_id !== $user->id) {
+        if ((int) $investment->user_id !== (int) $user->id) {
             abort(403, 'Unauthorized access to this investment.');
         }
 

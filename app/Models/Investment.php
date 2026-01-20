@@ -28,6 +28,8 @@ class Investment extends Model
     ];
 
     protected $casts = [
+        'user_id' => 'integer',
+        'investment_plan_id' => 'integer',
         'amount' => 'decimal:2',
         'expected_return' => 'decimal:2',
         'earned_amount' => 'decimal:2',
