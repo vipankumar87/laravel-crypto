@@ -353,6 +353,12 @@ return [
             'icon' => 'fas fa-fw fa-sitemap',
             'can' => 'access-admin-features',
         ],
+        [
+            'text' => 'Fee Settings',
+            'route' => 'admin.fee-settings.index',
+            'icon' => 'fas fa-fw fa-percentage',
+            'can' => 'access-admin-features',
+        ],
 
         // REGULAR USER-ONLY SECTIONS
         [

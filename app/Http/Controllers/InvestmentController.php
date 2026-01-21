@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Investment;
 use App\Models\InvestmentPlan;
 use App\Models\Transaction;
+use App\Models\FeeSetting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\WalletService;
@@ -50,9 +51,19 @@ class InvestmentController extends Controller
         $source = $request->source ?? 'direct';
         $paymentMethod = $request->payment_method;
 
-        // Validate investment amount
-        if ($amount < $plan->min_amount || $amount > $plan->max_amount) {
-            return back()->with('error', "Investment amount must be between $" . number_format($plan->min_amount, 2) . " and $" . number_format($plan->max_amount, 2));
+        // Calculate fees
+        $feeBreakdown = FeeSetting::calculateTotalFees($amount);
+        $totalFees = $feeBreakdown['total_fees'];
+        $netAmount = $feeBreakdown['net_amount'];
+
+        // Validate that net amount is positive
+        if ($netAmount <= 0) {
+            return back()->with('error', 'Investment amount is too low after fees. Please increase your investment amount.');
+        }
+
+        // Validate investment amount (net amount after fees must meet plan requirements)
+        if ($netAmount < $plan->min_amount || $netAmount > $plan->max_amount) {
+            return back()->with('error', "Net investment amount (after fees) must be between $" . number_format($plan->min_amount, 2) . " and $" . number_format($plan->max_amount, 2) . ". Your net amount would be $" . number_format($netAmount, 2));
         }
 
         // If payment method is crypto, create pending investment and redirect to crypto payment page
@@ -60,15 +71,15 @@ class InvestmentController extends Controller
             DB::beginTransaction();
 
             try {
-                // Create investment with pending status
-                $expectedReturn = ($amount * $plan->total_return_rate / 100);
+                // Create investment with pending status (using net amount after fees)
+                $expectedReturn = ($netAmount * $plan->total_return_rate / 100);
                 $endDate = now()->addDays($plan->duration_days);
 
                 $investment = Investment::create([
                     'user_id' => $user->id,
                     'investment_plan_id' => $plan->id,
                     'investment_plan' => $plan->name,
-                    'amount' => $amount,
+                    'amount' => $netAmount, // Net amount after fees
                     'expected_return' => $expectedReturn,
                     'duration_days' => $plan->duration_days,
                     'daily_return_rate' => $plan->daily_return_rate,
@@ -76,13 +87,17 @@ class InvestmentController extends Controller
                     'end_date' => $endDate,
                     'status' => 'pending',
                     'payment_method' => 'crypto',
+                    'platform_fee' => $feeBreakdown['platform_fee'],
+                    'transaction_fee' => $feeBreakdown['transaction_fee'],
+                    'total_fees' => $totalFees,
+                    'gross_amount' => $amount, // Original amount before fees
                 ]);
 
                 DB::commit();
 
                 // Redirect to crypto payment page where you will handle the crypto payment logic
                 return redirect()->route('investments.crypto-payment', $investment->id)
-                    ->with('info', 'Please complete the crypto payment to activate your investment.');
+                    ->with('info', 'Please complete the crypto payment to activate your investment. Total to pay: $' . number_format($amount, 2) . ' (Investment: $' . number_format($netAmount, 2) . ' + Fees: $' . number_format($totalFees, 2) . ')');
 
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -90,26 +105,26 @@ class InvestmentController extends Controller
             }
         }
 
-        // Wallet payment processing
+        // Wallet payment processing - need full amount (including fees)
         if (!$user->wallet || $user->wallet->balance < $amount) {
-            return back()->with('error', 'Insufficient wallet balance');
+            return back()->with('error', 'Insufficient wallet balance. You need $' . number_format($amount, 2) . ' (Investment: $' . number_format($netAmount, 2) . ' + Fees: $' . number_format($totalFees, 2) . ')');
         }
 
         DB::beginTransaction();
 
         try {
-            // Deduct from wallet
-            $user->wallet->deductBalance($amount, 'Investment in ' . $plan->name);
+            // Deduct full amount from wallet (including fees)
+            $user->wallet->deductBalance($amount, 'Investment in ' . $plan->name . ' ($' . number_format($netAmount, 2) . ' + Fees: $' . number_format($totalFees, 2) . ')');
 
-            // Create investment
-            $expectedReturn = ($amount * $plan->total_return_rate / 100);
+            // Create investment with net amount
+            $expectedReturn = ($netAmount * $plan->total_return_rate / 100);
             $endDate = now()->addDays($plan->duration_days);
 
             $investment = Investment::create([
                 'user_id' => $user->id,
                 'investment_plan_id' => $plan->id,
                 'investment_plan' => $plan->name,
-                'amount' => $amount,
+                'amount' => $netAmount, // Net amount after fees
                 'expected_return' => $expectedReturn,
                 'duration_days' => $plan->duration_days,
                 'daily_return_rate' => $plan->daily_return_rate,
@@ -117,15 +132,19 @@ class InvestmentController extends Controller
                 'end_date' => $endDate,
                 'status' => 'active',
                 'payment_method' => 'wallet',
+                'platform_fee' => $feeBreakdown['platform_fee'],
+                'transaction_fee' => $feeBreakdown['transaction_fee'],
+                'total_fees' => $totalFees,
+                'gross_amount' => $amount, // Original amount before fees
             ]);
 
-            // Update wallet invested amount
-            $user->wallet->increment('invested_amount', $amount);
+            // Update wallet invested amount (only net amount counts as investment)
+            $user->wallet->increment('invested_amount', $netAmount);
 
-            // Distribute 5-level referral bonuses
+            // Distribute 5-level referral bonuses (based on net investment amount)
             if ($user->referred_by) {
                 $bonusResult = $this->referralService->distributeInvestmentBonuses($user, $investment);
-                
+
                 if ($bonusResult['success']) {
                     \Log::info('5-level referral bonuses distributed', [
                         'user_id' => $user->id,
@@ -139,7 +158,7 @@ class InvestmentController extends Controller
             DB::commit();
 
             return redirect()->route('investments.index')
-                ->with('success', 'Investment created successfully!');
+                ->with('success', 'Investment created successfully! Invested: $' . number_format($netAmount, 2) . ' (Fees: $' . number_format($totalFees, 2) . ')');
 
         } catch (\Exception $e) {
             DB::rollBack();

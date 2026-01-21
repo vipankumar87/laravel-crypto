@@ -155,6 +155,13 @@ Route::middleware(['auth', 'ensure.admin.role'])->prefix('admin')->name('admin.'
     Route::post('/referral-settings', [App\Http\Controllers\Admin\ReferralSettingsController::class, 'store'])->name('referral-settings.store');
     Route::delete('/referral-settings/{referralSetting}', [App\Http\Controllers\Admin\ReferralSettingsController::class, 'destroy'])->name('referral-settings.destroy');
 
+    // Fee Settings
+    Route::get('/fee-settings', [App\Http\Controllers\Admin\FeeSettingsController::class, 'index'])->name('fee-settings.index');
+    Route::put('/fee-settings', [App\Http\Controllers\Admin\FeeSettingsController::class, 'update'])->name('fee-settings.update');
+    Route::post('/fee-settings', [App\Http\Controllers\Admin\FeeSettingsController::class, 'store'])->name('fee-settings.store');
+    Route::delete('/fee-settings/{feeSetting}', [App\Http\Controllers\Admin\FeeSettingsController::class, 'destroy'])->name('fee-settings.destroy');
+    Route::post('/fee-settings/calculate', [App\Http\Controllers\Admin\FeeSettingsController::class, 'calculate'])->name('fee-settings.calculate');
+
     // Transaction Management
     Route::get('/transactions', [App\Http\Controllers\Admin\AdminController::class, 'transactions'])->name('transactions.index');
     Route::post('/transactions/{transaction}/approve', [App\Http\Controllers\Admin\UserManagementController::class, 'approveTransaction'])->name('transactions.approve');
