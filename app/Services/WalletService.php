@@ -68,7 +68,8 @@ class WalletService
         }
         
         // Execute Node.js script to generate wallet
-        $command = $envString . 'node ' . escapeshellarg($nodeScript) . ' ' . escapeshellarg((string)$userId) . ' 2>&1';
+        $nodeBinary = config('services.node.binary', 'node');
+        $command = $envString . escapeshellarg($nodeBinary) . ' ' . escapeshellarg($nodeScript) . ' ' . escapeshellarg((string)$userId) . ' 2>&1';
         $output = shell_exec($command);
         
         // Log the command and output for debugging

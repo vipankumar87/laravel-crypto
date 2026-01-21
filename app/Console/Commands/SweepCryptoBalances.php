@@ -68,7 +68,8 @@ class SweepCryptoBalances extends Command
         }
         
         // Execute the sweep script
-        $command = $envString . 'node ' . escapeshellarg($sweepScript) . ' 2>&1';
+        $nodeBinary = config('services.node.binary', 'node');
+        $command = $envString . escapeshellarg($nodeBinary) . ' ' . escapeshellarg($sweepScript) . ' 2>&1';
         
         $this->line('Executing sweep script...');
         $this->newLine();

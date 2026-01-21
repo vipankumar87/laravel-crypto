@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'node' => [
+        'binary' => env('NODE_BINARY_PATH', 'node'),
+    ],
+
 ];
