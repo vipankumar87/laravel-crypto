@@ -289,7 +289,7 @@ class AnalyticsService
     /**
      * Get earnings breakdown by type (direct vs referral)
      */
-    protected function getEarningsBreakdown(User $user)
+    public function getEarningsBreakdown(User $user)
     {
         // Direct earnings from investments (daily returns)
         $directEarnings = Transaction::where('user_id', $user->id)

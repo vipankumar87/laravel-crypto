@@ -57,10 +57,15 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // Get analytics data if user has investments
+        // Get analytics data - always include earnings breakdown
         $analytics = null;
         if ($activeInvestments > 0) {
             $analytics = $this->analyticsService->getUserAnalytics($user);
+        } else {
+            // Still provide earnings breakdown even without active investments
+            $analytics = [
+                'earnings_breakdown' => $this->analyticsService->getEarningsBreakdown($user)
+            ];
         }
 
         return view('dashboard', compact(
