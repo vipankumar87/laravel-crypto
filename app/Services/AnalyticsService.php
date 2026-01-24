@@ -316,7 +316,13 @@ class AnalyticsService
 
         $todayReferralEarnings = ReferralBonus::where('referrer_id', $user->id)
             ->where('status', 'completed')
-            ->whereDate('processed_at', Carbon::today())
+            ->where(function ($query) {
+                $query->whereDate('processed_at', Carbon::today())
+                      ->orWhere(function ($q) {
+                          $q->whereNull('processed_at')
+                            ->whereDate('created_at', Carbon::today());
+                      });
+            })
             ->sum('amount');
 
         $todayReferralTransactionEarnings = Transaction::where('user_id', $user->id)
@@ -334,7 +340,13 @@ class AnalyticsService
 
         $weekReferralEarnings = ReferralBonus::where('referrer_id', $user->id)
             ->where('status', 'completed')
-            ->whereBetween('processed_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            ->where(function ($query) {
+                $query->whereBetween('processed_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+                      ->orWhere(function ($q) {
+                          $q->whereNull('processed_at')
+                            ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+                      });
+            })
             ->sum('amount');
 
         $weekReferralTransactionEarnings = Transaction::where('user_id', $user->id)
@@ -353,8 +365,16 @@ class AnalyticsService
 
         $monthReferralEarnings = ReferralBonus::where('referrer_id', $user->id)
             ->where('status', 'completed')
-            ->whereMonth('processed_at', Carbon::now()->month)
-            ->whereYear('processed_at', Carbon::now()->year)
+            ->where(function ($query) {
+                $query->where(function ($q) {
+                    $q->whereMonth('processed_at', Carbon::now()->month)
+                      ->whereYear('processed_at', Carbon::now()->year);
+                })->orWhere(function ($q) {
+                    $q->whereNull('processed_at')
+                      ->whereMonth('created_at', Carbon::now()->month)
+                      ->whereYear('created_at', Carbon::now()->year);
+                });
+            })
             ->sum('amount');
 
         $monthReferralTransactionEarnings = Transaction::where('user_id', $user->id)

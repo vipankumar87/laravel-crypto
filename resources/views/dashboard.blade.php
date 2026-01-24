@@ -76,7 +76,13 @@
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    @if($analytics['earnings_breakdown']['all_time']['total_earnings'] > 0)
+                                    @php
+                                        $hasAnyEarnings = $analytics['earnings_breakdown']['all_time']['total_earnings'] > 0
+                                            || $analytics['earnings_breakdown']['today']['total_earnings'] > 0
+                                            || $analytics['earnings_breakdown']['this_week']['total_earnings'] > 0
+                                            || $analytics['earnings_breakdown']['this_month']['total_earnings'] > 0;
+                                    @endphp
+                                    @if($hasAnyEarnings)
                                     <!-- Summary Cards -->
                                     <div class="row mb-4">
                                         <div class="col-md-4">

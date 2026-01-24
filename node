@@ -1,0 +1,2 @@
+#!/bin/bash 
+/home/dogegehp/.nvm/versions/node/v22.20.0/bin/node $1

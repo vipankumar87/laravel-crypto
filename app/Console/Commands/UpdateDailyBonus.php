@@ -58,6 +58,11 @@ class UpdateDailyBonus extends Command
         try {
             // Use database transaction to ensure atomicity
             DB::transaction(function () use (&$totalSelfEarnings, &$totalReferralEarnings, &$processedInvestments, $today, $force) {
+                // If force is used, clean up today's entries first
+                if ($force) {
+                    $this->cleanupTodayEntries($today);
+                }
+                
                 // Process self (direct) earnings from active investments
                 $this->processSelfEarnings($totalSelfEarnings, $processedInvestments);
                 
@@ -101,6 +106,114 @@ class UpdateDailyBonus extends Command
         }
         
         return 0;
+    }
+    
+    /**
+     * Clean up today's entries when using --force
+     */
+    private function cleanupTodayEntries($today)
+    {
+        $this->info('Cleaning up today\'s entries for reprocessing...');
+        
+        // Fetch today's earning transactions before deleting so we can reverse wallet amounts
+        $todayEarningTxs = \App\Models\Transaction::where('type', 'earning')
+            ->whereDate('created_at', $today)
+            ->get(['user_id', 'amount']);
+        
+        // Fetch today's referral_bonus transactions before deleting
+        $todayReferralTxs = \App\Models\Transaction::where('type', 'referral_bonus')
+            ->whereDate('created_at', $today)
+            ->get(['user_id', 'amount']);
+        
+        // Fetch today's completed referral bonuses before deleting
+        $todayReferralBonuses = \App\Models\ReferralBonus::where('status', 'completed')
+            ->where(function ($query) use ($today) {
+                $query->whereDate('processed_at', $today)
+                      ->orWhere(function ($q) use ($today) {
+                          $q->whereNull('processed_at')
+                            ->whereDate('created_at', $today);
+                      });
+            })
+            ->get(['referrer_id', 'amount']);
+        
+        // Delete today's earning transactions
+        $deletedEarningTxs = \App\Models\Transaction::where('type', 'earning')
+            ->whereDate('created_at', $today)
+            ->delete();
+        
+        // Delete today's referral_bonus transactions (if any)
+        $deletedReferralTxs = \App\Models\Transaction::where('type', 'referral_bonus')
+            ->whereDate('created_at', $today)
+            ->delete();
+        
+        // Delete today's completed referral bonuses
+        $deletedReferralBonuses = \App\Models\ReferralBonus::where('status', 'completed')
+            ->where(function ($query) use ($today) {
+                $query->whereDate('processed_at', $today)
+                      ->orWhere(function ($q) use ($today) {
+                          $q->whereNull('processed_at')
+                            ->whereDate('created_at', $today);
+                      });
+            })
+            ->delete();
+        
+        // Reset last_earning_date for investments that were processed today
+        $resetInvestments = Investment::whereDate('last_earning_date', $today)
+            ->update(['last_earning_date' => null]);
+        
+        // Delete today's DailyBonusLog to allow reprocessing
+        DailyBonusLog::where('process_date', $today)->delete();
+        
+        // Reverse wallet balances for today's earnings
+        $this->reverseWalletBalances($todayEarningTxs, $todayReferralTxs, $todayReferralBonuses);
+        
+        $this->line("Deleted earning transactions: {$deletedEarningTxs}");
+        $this->line("Deleted referral_bonus transactions: {$deletedReferralTxs}");
+        $this->line("Deleted referral bonuses: {$deletedReferralBonuses}");
+        $this->line("Reset investment last_earning_date: {$resetInvestments}");
+        $this->line("Deleted today's DailyBonusLog entries");
+    }
+    
+    /**
+     * Reverse wallet balances for today's earnings
+     */
+    private function reverseWalletBalances($earningTxs, $referralTxs, $referralBonuses)
+    {
+        $this->info('Reversing wallet balances for today\'s earnings...');
+        
+        // Aggregate amounts per user
+        $userAdjustments = [];
+        
+        foreach ($earningTxs as $tx) {
+            $uid = $tx->user_id;
+            $userAdjustments[$uid] = ($userAdjustments[$uid] ?? 0) - $tx->amount;
+        }
+        
+        foreach ($referralTxs as $tx) {
+            $uid = $tx->user_id;
+            $userAdjustments[$uid] = ($userAdjustments[$uid] ?? 0) - $tx->amount;
+        }
+        
+        foreach ($referralBonuses as $rb) {
+            $uid = $rb->referrer_id;
+            $userAdjustments[$uid] = ($userAdjustments[$uid] ?? 0) - $rb->amount;
+        }
+        
+        // Apply adjustments to wallets with optimistic locking
+        foreach ($userAdjustments as $userId => $adjustment) {
+            $wallet = \App\Models\Wallet::where('user_id', $userId)->lockForUpdate()->first();
+            if ($wallet) {
+                $this->info("Wallet found for user {$userId}");
+                $this->warn(sprintf("Adjustment: {$adjustment}", $wallet->balance));
+                $wallet->balance = max(0, $wallet->balance + $adjustment);
+                // $wallet->total_earnings = max(0, $wallet->total_earnings + $adjustment);
+                $wallet->earned_amount = max(0, $wallet->earned_amount + $adjustment);
+                $wallet->save();
+                $this->line("Reversed {$adjustment} from user {$userId} wallet");
+            } else {
+                $this->line("Wallet not found for user {$userId}");
+            }
+        }
     }
     
     /**
