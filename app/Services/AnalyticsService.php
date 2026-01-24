@@ -82,23 +82,23 @@ class AnalyticsService
         $now = Carbon::now();
         
         $todayEarnings = Transaction::where('user_id', $user->id)
-            ->where('type', 'interest')
+            ->where('type', 'earning')
             ->whereDate('created_at', $now->toDateString())
             ->sum('amount');
 
         $weekEarnings = Transaction::where('user_id', $user->id)
-            ->where('type', 'interest')
+            ->where('type', 'earning')
             ->whereBetween('created_at', [$now->copy()->startOfWeek(), $now->copy()->endOfWeek()])
             ->sum('amount');
 
         $monthEarnings = Transaction::where('user_id', $user->id)
-            ->where('type', 'interest')
+            ->where('type', 'earning')
             ->whereMonth('created_at', $now->month)
             ->whereYear('created_at', $now->year)
             ->sum('amount');
 
         $allTimeEarnings = Transaction::where('user_id', $user->id)
-            ->where('type', 'interest')
+            ->where('type', 'earning')
             ->sum('amount');
 
         return [
@@ -117,7 +117,7 @@ class AnalyticsService
         $dailyData = [];
         for ($date = $startOfWeek->copy(); $date <= $endOfWeek; $date->addDay()) {
             $earnings = Transaction::where('user_id', $user->id)
-                ->where('type', 'interest')
+                ->where('type', 'earning')
                 ->whereDate('created_at', $date->toDateString())
                 ->sum('amount');
 
@@ -152,7 +152,7 @@ class AnalyticsService
             }
 
             $earnings = Transaction::where('user_id', $user->id)
-                ->where('type', 'interest')
+                ->where('type', 'earning')
                 ->whereBetween('created_at', [$currentWeekStart, $currentWeekEnd])
                 ->sum('amount');
 
@@ -230,7 +230,7 @@ class AnalyticsService
         $data = [];
         for ($date = $startDate->copy(); $date <= $endDate; $date->addDay()) {
             $earnings = Transaction::where('user_id', $user->id)
-                ->where('type', 'interest')
+                ->where('type', 'earning')
                 ->whereDate('created_at', $date->toDateString())
                 ->sum('amount');
 
@@ -251,7 +251,7 @@ class AnalyticsService
         $data = [];
         for ($date = $startDate->copy(); $date <= $endDate; $date->addDay()) {
             $earnings = Transaction::where('user_id', $user->id)
-                ->where('type', 'interest')
+                ->where('type', 'earning')
                 ->whereDate('created_at', $date->toDateString())
                 ->sum('amount');
 
@@ -272,7 +272,7 @@ class AnalyticsService
         $data = [];
         for ($date = $startDate->copy(); $date <= $endDate; $date->addMonth()) {
             $earnings = Transaction::where('user_id', $user->id)
-                ->where('type', 'interest')
+                ->where('type', 'earning')
                 ->whereMonth('created_at', $date->month)
                 ->whereYear('created_at', $date->year)
                 ->sum('amount');
