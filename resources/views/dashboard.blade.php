@@ -245,7 +245,7 @@
                                         <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
                                         <h4 class="text-muted">No Earnings Yet</h4>
                                         <p class="text-muted">Start investing to see your earnings breakdown here.</p>
-                                        <a href="{{ route('investments.create') }}" class="btn btn-primary">
+                                        <a href="{{ route('investments.plans') }}" class="btn btn-primary">
                                             <i class="fas fa-plus"></i> Make Investment
                                         </a>
                                     </div>
