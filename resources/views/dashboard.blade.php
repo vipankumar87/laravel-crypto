@@ -19,7 +19,7 @@
                         <div class="col-md-4">
                             <div class="small-box bg-info">
                                 <div class="inner">
-                                    <h3>{{ number_format($wallet->balance ?? 0, 2) }} USDT</h3>
+                                    <h3>{{ number_format($wallet->balance ?? 0, 2) }} DOGE</h3>
                                     <p>Wallet Balance</p>
                                 </div>
                                 <div class="icon">
@@ -49,7 +49,7 @@
                         <div class="col-md-4">
                             <div class="small-box bg-warning">
                                 <div class="inner">
-                                    <h3>{{ number_format($totalEarnings ?? 0, 2) }} USDT</h3>
+                                    <h3>{{ number_format($totalEarnings ?? 0, 2) }} DOGE</h3>
                                     <p>Total Earnings</p>
                                 </div>
                                 <div class="icon">
@@ -90,7 +90,7 @@
                                                 <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Direct Earnings</span>
-                                                    <span class="info-box-number">{{ number_format($analytics['earnings_breakdown']['all_time']['direct_earnings'], 2) }} USDT</span>
+                                                    <span class="info-box-number">{{ number_format($analytics['earnings_breakdown']['all_time']['direct_earnings'], 2) }} DOGE</span>
                                                     <div class="progress">
                                                         <div class="progress-bar bg-info" style="width: {{ $analytics['earnings_breakdown']['all_time']['direct_percentage'] }}%"></div>
                                                     </div>
@@ -105,7 +105,7 @@
                                                 <span class="info-box-icon"><i class="fas fa-users"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Referral Earnings</span>
-                                                    <span class="info-box-number">{{ number_format($analytics['earnings_breakdown']['all_time']['referral_earnings'], 2) }} USDT</span>
+                                                    <span class="info-box-number">{{ number_format($analytics['earnings_breakdown']['all_time']['referral_earnings'], 2) }} DOGE</span>
                                                     <div class="progress">
                                                         <div class="progress-bar bg-warning" style="width: {{ $analytics['earnings_breakdown']['all_time']['referral_percentage'] }}%"></div>
                                                     </div>
@@ -120,7 +120,7 @@
                                                 <span class="info-box-icon"><i class="fas fa-wallet"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Total Earnings</span>
-                                                    <span class="info-box-number">{{ number_format($analytics['earnings_breakdown']['all_time']['total_earnings'], 2) }} USDT</span>
+                                                    <span class="info-box-number">{{ number_format($analytics['earnings_breakdown']['all_time']['total_earnings'], 2) }} DOGE</span>
                                                     <div class="progress">
                                                         <div class="progress-bar bg-success" style="width: 100%"></div>
                                                     </div>
@@ -150,9 +150,9 @@
                                                 <tbody>
                                                     <tr>
                                                         <td><strong>Today</strong></td>
-                                                        <td>{{ number_format($analytics['earnings_breakdown']['today']['direct_earnings'], 2) }} USDT</td>
-                                                        <td>{{ number_format($analytics['earnings_breakdown']['today']['referral_earnings'], 2) }} USDT</td>
-                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['today']['total_earnings'], 2) }} USDT</strong></td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['today']['direct_earnings'], 2) }} DOGE</td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['today']['referral_earnings'], 2) }} DOGE</td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['today']['total_earnings'], 2) }} DOGE</strong></td>
                                                         <td>
                                                             @if($analytics['earnings_breakdown']['today']['total_earnings'] > 0)
                                                                 <span class="badge badge-info">{{ number_format(($analytics['earnings_breakdown']['today']['direct_earnings'] / $analytics['earnings_breakdown']['today']['total_earnings']) * 100, 1) }}%</span>
@@ -170,9 +170,9 @@
                                                     </tr>
                                                     <tr>
                                                         <td><strong>This Week</strong></td>
-                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_week']['direct_earnings'], 2) }} USDT</td>
-                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_week']['referral_earnings'], 2) }} USDT</td>
-                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['this_week']['total_earnings'], 2) }} USDT</strong></td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_week']['direct_earnings'], 2) }} DOGE</td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_week']['referral_earnings'], 2) }} DOGE</td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['this_week']['total_earnings'], 2) }} DOGE</strong></td>
                                                         <td>
                                                             @if($analytics['earnings_breakdown']['this_week']['total_earnings'] > 0)
                                                                 <span class="badge badge-info">{{ number_format(($analytics['earnings_breakdown']['this_week']['direct_earnings'] / $analytics['earnings_breakdown']['this_week']['total_earnings']) * 100, 1) }}%</span>
@@ -190,9 +190,9 @@
                                                     </tr>
                                                     <tr>
                                                         <td><strong>This Month</strong></td>
-                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_month']['direct_earnings'], 2) }} USDT</td>
-                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_month']['referral_earnings'], 2) }} USDT</td>
-                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['this_month']['total_earnings'], 2) }} USDT</strong></td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_month']['direct_earnings'], 2) }} DOGE</td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_month']['referral_earnings'], 2) }} DOGE</td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['this_month']['total_earnings'], 2) }} DOGE</strong></td>
                                                         <td>
                                                             @if($analytics['earnings_breakdown']['this_month']['total_earnings'] > 0)
                                                                 <span class="badge badge-info">{{ number_format(($analytics['earnings_breakdown']['this_month']['direct_earnings'] / $analytics['earnings_breakdown']['this_month']['total_earnings']) * 100, 1) }}%</span>
@@ -210,9 +210,9 @@
                                                     </tr>
                                                     <tr class="table-primary">
                                                         <td><strong>All Time</strong></td>
-                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['all_time']['direct_earnings'], 2) }} USDT</strong></td>
-                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['all_time']['referral_earnings'], 2) }} USDT</strong></td>
-                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['all_time']['total_earnings'], 2) }} USDT</strong></td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['all_time']['direct_earnings'], 2) }} DOGE</strong></td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['all_time']['referral_earnings'], 2) }} DOGE</strong></td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['all_time']['total_earnings'], 2) }} DOGE</strong></td>
                                                         <td><strong><span class="badge badge-info">{{ number_format($analytics['earnings_breakdown']['all_time']['direct_percentage'], 1) }}%</span></strong></td>
                                                         <td><strong><span class="badge badge-warning">{{ number_format($analytics['earnings_breakdown']['all_time']['referral_percentage'], 1) }}%</span></strong></td>
                                                     </tr>
@@ -232,7 +232,7 @@
                                                     <div class="small-box bg-light">
                                                         <div class="inner">
                                                             <h4>Level {{ $data['level'] }}</h4>
-                                                            <p>{{ number_format($data['total_earnings'], 2) }} USDT</p>
+                                                            <p>{{ number_format($data['total_earnings'], 2) }} DOGE</p>
                                                             <small class="text-muted">{{ $data['referral_count'] }} referrals</small>
                                                         </div>
                                                         <div class="icon">
@@ -283,7 +283,7 @@
                                                 <span class="info-box-icon"><i class="fas fa-wallet"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Wallet Balance</span>
-                                                    <span class="info-box-number" id="wallet-balance">{{ number_format($analytics['wallet']['balance'], 2) }} USDT</span>
+                                                    <span class="info-box-number" id="wallet-balance">{{ number_format($analytics['wallet']['balance'], 2) }} DOGE</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -410,22 +410,22 @@
                                                         <tbody>
                                                             <tr>
                                                                 <td><strong>Today</strong></td>
-                                                                <td id="interest-today">{{ number_format($analytics['interest']['today'], 2) }} USDT</td>
+                                                                <td id="interest-today">{{ number_format($analytics['interest']['today'], 2) }} DOGE</td>
                                                                 <td><span class="badge badge-success">Active</span></td>
                                                             </tr>
                                                             <tr>
                                                                 <td><strong>This Week</strong></td>
-                                                                <td id="interest-week">{{ number_format($analytics['interest']['this_week'], 2) }} USDT</td>
-                                                                <td><span class="badge badge-info">{{ number_format($analytics['weekly']['total'], 2) }} USDT</span></td>
+                                                                <td id="interest-week">{{ number_format($analytics['interest']['this_week'], 2) }} DOGE</td>
+                                                                <td><span class="badge badge-info">{{ number_format($analytics['weekly']['total'], 2) }} DOGE</span></td>
                                                             </tr>
                                                             <tr>
                                                                 <td><strong>This Month</strong></td>
-                                                                <td id="interest-month">{{ number_format($analytics['interest']['this_month'], 2) }} USDT</td>
-                                                                <td><span class="badge badge-primary">{{ number_format($analytics['monthly']['total'], 2) }} USDT</span></td>
+                                                                <td id="interest-month">{{ number_format($analytics['interest']['this_month'], 2) }} DOGE</td>
+                                                                <td><span class="badge badge-primary">{{ number_format($analytics['monthly']['total'], 2) }} DOGE</span></td>
                                                             </tr>
                                                             <tr>
                                                                 <td><strong>All Time</strong></td>
-                                                                <td id="interest-alltime">{{ number_format($analytics['interest']['all_time'], 2) }} USDT</td>
+                                                                <td id="interest-alltime">{{ number_format($analytics['interest']['all_time'], 2) }} DOGE</td>
                                                                 <td><span class="badge badge-warning">Total</span></td>
                                                             </tr>
                                                         </tbody>
@@ -496,7 +496,7 @@
                                                 Invest from Wallet
                                             </button>
                                             <small class="text-muted">
-                                                Available: {{ number_format($wallet->balance ?? 0, 2) }} USDT
+                                                Available: {{ number_format($wallet->balance ?? 0, 2) }} DOGE
                                             </small>
                                         </div>
                                     </div>
@@ -541,7 +541,7 @@
                                     @foreach($recentTransactions as $transaction)
                                     <tr>
                                         <td>{{ ucfirst($transaction->type) }}</td>
-                                        <td>{{ number_format($transaction->amount, 2) }} USDT</td>
+                                        <td>{{ number_format($transaction->amount, 2) }} DOGE</td>
                                         <td>
                                             <span class="badge badge-{{ $transaction->status == 'completed' ? 'success' : ($transaction->status == 'pending' ? 'warning' : 'danger') }}">
                                                 {{ ucfirst($transaction->status) }}
@@ -579,7 +579,7 @@ function investFromWallet() {
         return;
     }
 
-    const amount = prompt(`Enter investment amount (Available: ${walletBalance.toFixed(2)} USDT):`);
+    const amount = prompt(`Enter investment amount (Available: ${walletBalance.toFixed(2)} DOGE):`);
 
     if (amount === null) return;
 
@@ -595,7 +595,7 @@ function investFromWallet() {
         return;
     }
 
-    const confirmed = confirm(`Confirm Investment:\n\nAmount: ${investmentAmount.toFixed(2)} USDT\nSource: Wallet Balance\n\nProceed with this investment?`);
+    const confirmed = confirm(`Confirm Investment:\n\nAmount: ${investmentAmount.toFixed(2)} DOGE\nSource: Wallet Balance\n\nProceed with this investment?`);
 
     if (confirmed) {
         window.location.href = `{{ route('investments.plans') }}?amount=${investmentAmount}&source=wallet`;
@@ -620,7 +620,7 @@ function initCharts() {
             data: {
                 labels: weeklyData.map(d => d.day),
                 datasets: [{
-                    label: 'Daily Earnings (USDT)',
+                    label: 'Daily Earnings (DOGE)',
                     data: weeklyData.map(d => d.earnings),
                     backgroundColor: 'rgba(54, 162, 235, 0.2)',
                     borderColor: 'rgba(54, 162, 235, 1)',
@@ -640,7 +640,7 @@ function initCharts() {
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return 'Earnings: ' + context.parsed.y.toFixed(2) + ' USDT';
+                                return 'Earnings: ' + context.parsed.y.toFixed(2) + ' DOGE';
                             }
                         }
                     }
@@ -650,7 +650,7 @@ function initCharts() {
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return value.toFixed(2) + ' USDT';
+                                return value.toFixed(2) + ' DOGE';
                             }
                         }
                     }
@@ -667,7 +667,7 @@ function initCharts() {
             data: {
                 labels: monthlyData.map(d => d.week_label),
                 datasets: [{
-                    label: 'Weekly Earnings (USDT)',
+                    label: 'Weekly Earnings (DOGE)',
                     data: monthlyData.map(d => d.earnings),
                     backgroundColor: 'rgba(75, 192, 192, 0.6)',
                     borderColor: 'rgba(75, 192, 192, 1)',
@@ -685,7 +685,7 @@ function initCharts() {
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return 'Earnings: ' + context.parsed.y.toFixed(2) + ' USDT';
+                                return 'Earnings: ' + context.parsed.y.toFixed(2) + ' DOGE';
                             }
                         }
                     }
@@ -695,7 +695,7 @@ function initCharts() {
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return value.toFixed(2) + ' USDT';
+                                return value.toFixed(2) + ' DOGE';
                             }
                         }
                     }
@@ -721,26 +721,26 @@ function updateAnalytics() {
             
             // Update wallet stats
             if (analytics.wallet) {
-                updateElement('wallet-balance', analytics.wallet.balance.toFixed(2) + ' USDT');
-                updateElement('total-invested', analytics.wallet.invested_amount.toFixed(2) + ' USDT');
-                updateElement('total-earned', analytics.wallet.earned_amount.toFixed(2) + ' USDT');
-                updateElement('total-value', analytics.wallet.total_value.toFixed(2) + ' USDT');
+                updateElement('wallet-balance', analytics.wallet.balance.toFixed(2) + ' DOGE');
+                updateElement('total-invested', analytics.wallet.invested_amount.toFixed(2) + ' DOGE');
+                updateElement('total-earned', analytics.wallet.earned_amount.toFixed(2) + ' DOGE');
+                updateElement('total-value', analytics.wallet.total_value.toFixed(2) + ' DOGE');
             }
             
             // Update interest stats
             if (analytics.investments) {
-                updateElement('daily-interest', analytics.investments.daily_interest.toFixed(2) + ' USDT');
-                updateElement('weekly-interest', (analytics.investments.daily_interest * 7).toFixed(2) + ' USDT');
-                updateElement('monthly-interest', analytics.investments.monthly_interest.toFixed(2) + ' USDT');
-                updateElement('yearly-interest', analytics.investments.yearly_interest.toFixed(2) + ' USDT');
+                updateElement('daily-interest', analytics.investments.daily_interest.toFixed(2) + ' DOGE');
+                updateElement('weekly-interest', (analytics.investments.daily_interest * 7).toFixed(2) + ' DOGE');
+                updateElement('monthly-interest', analytics.investments.monthly_interest.toFixed(2) + ' DOGE');
+                updateElement('yearly-interest', analytics.investments.yearly_interest.toFixed(2) + ' DOGE');
             }
             
             // Update interest breakdown
             if (analytics.interest) {
-                updateElement('interest-today', analytics.interest.today.toFixed(2) + ' USDT');
-                updateElement('interest-week', analytics.interest.this_week.toFixed(2) + ' USDT');
-                updateElement('interest-month', analytics.interest.this_month.toFixed(2) + ' USDT');
-                updateElement('interest-alltime', analytics.interest.all_time.toFixed(2) + ' USDT');
+                updateElement('interest-today', analytics.interest.today.toFixed(2) + ' DOGE');
+                updateElement('interest-week', analytics.interest.this_week.toFixed(2) + ' DOGE');
+                updateElement('interest-month', analytics.interest.this_month.toFixed(2) + ' DOGE');
+                updateElement('interest-alltime', analytics.interest.all_time.toFixed(2) + ' DOGE');
             }
             
             // Update real-time stats
@@ -758,7 +758,7 @@ function updateAnalytics() {
                 // Update direct earnings card
                 const directCard = document.querySelector('[data-earnings-type="direct"]');
                 if (directCard) {
-                    directCard.querySelector('.info-box-number').textContent = breakdown.all_time.direct_earnings.toFixed(2) + ' USDT';
+                    directCard.querySelector('.info-box-number').textContent = breakdown.all_time.direct_earnings.toFixed(2) + ' DOGE';
                     const progressBar = directCard.querySelector('.progress-bar');
                     if (progressBar) {
                         progressBar.style.width = breakdown.all_time.direct_percentage + '%';
@@ -772,7 +772,7 @@ function updateAnalytics() {
                 // Update referral earnings card
                 const referralCard = document.querySelector('[data-earnings-type="referral"]');
                 if (referralCard) {
-                    referralCard.querySelector('.info-box-number').textContent = breakdown.all_time.referral_earnings.toFixed(2) + ' USDT';
+                    referralCard.querySelector('.info-box-number').textContent = breakdown.all_time.referral_earnings.toFixed(2) + ' DOGE';
                     const progressBar = referralCard.querySelector('.progress-bar');
                     if (progressBar) {
                         progressBar.style.width = breakdown.all_time.referral_percentage + '%';
@@ -786,7 +786,7 @@ function updateAnalytics() {
                 // Update total earnings card
                 const totalCard = document.querySelector('[data-earnings-type="total"]');
                 if (totalCard) {
-                    totalCard.querySelector('.info-box-number').textContent = breakdown.all_time.total_earnings.toFixed(2) + ' USDT';
+                    totalCard.querySelector('.info-box-number').textContent = breakdown.all_time.total_earnings.toFixed(2) + ' DOGE';
                 }
             }
             

@@ -26,7 +26,7 @@
                         </div>
                         <div>
                             <h6 class="mb-1" style="opacity: 0.9;">Wallet Balance</h6>
-                            <h4 class="mb-0 font-weight-bold">{{ number_format($walletBalance, 4) }} USDT</h4>
+                            <h4 class="mb-0 font-weight-bold">{{ number_format($walletBalance, 4) }} DOGE</h4>
                         </div>
                     </div>
                 </div>
@@ -43,7 +43,7 @@
                         </div>
                         <div>
                             <h6 class="mb-1" style="opacity: 0.9;">Mining</h6>
-                            <h4 class="mb-0 font-weight-bold">{{ number_format($totalInterest, 10) }} USDT</h4>
+                            <h4 class="mb-0 font-weight-bold">{{ number_format($totalInterest, 10) }} DOGE</h4>
                         </div>
                     </div>
                 </div>
@@ -60,7 +60,7 @@
                         </div>
                         <div>
                             <h6 class="mb-1" style="opacity: 0.9;">Total Invest</h6>
-                            <h4 class="mb-0 font-weight-bold">{{ number_format($totalInvestment, 2) }} USDT</h4>
+                            <h4 class="mb-0 font-weight-bold">{{ number_format($totalInvestment, 2) }} DOGE</h4>
                         </div>
                     </div>
                 </div>
@@ -77,7 +77,7 @@
                         </div>
                         <div>
                             <h6 class="mb-1" style="opacity: 0.9;">Total Affiliate Bonus</h6>
-                            <h4 class="mb-0 font-weight-bold">{{ number_format($totalAffiliateBonus, 10) }} USDT</h4>
+                            <h4 class="mb-0 font-weight-bold">{{ number_format($totalAffiliateBonus, 10) }} DOGE</h4>
                         </div>
                     </div>
                 </div>

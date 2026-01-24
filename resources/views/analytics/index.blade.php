@@ -28,7 +28,7 @@
                                 <span class="info-box-icon"><i class="fas fa-wallet"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Current Balance</span>
-                                    <span class="info-box-number" id="current-balance">{{ number_format($analytics['wallet']['balance'], 2) }} USDT</span>
+                                    <span class="info-box-number" id="current-balance">{{ number_format($analytics['wallet']['balance'], 2) }} DOGE</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 100%"></div>
                                     </div>
@@ -40,7 +40,7 @@
                                 <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Total Invested</span>
-                                    <span class="info-box-number" id="total-invested-main">{{ number_format($analytics['wallet']['invested_amount'], 2) }} USDT</span>
+                                    <span class="info-box-number" id="total-invested-main">{{ number_format($analytics['wallet']['invested_amount'], 2) }} DOGE</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 100%"></div>
                                     </div>
@@ -52,7 +52,7 @@
                                 <span class="info-box-icon"><i class="fas fa-coins"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Total Earned</span>
-                                    <span class="info-box-number" id="total-earned-main">{{ number_format($analytics['wallet']['earned_amount'], 2) }} USDT</span>
+                                    <span class="info-box-number" id="total-earned-main">{{ number_format($analytics['wallet']['earned_amount'], 2) }} DOGE</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 100%"></div>
                                     </div>
@@ -85,25 +85,25 @@
                                         <div class="col-md-3 col-sm-6 mb-3">
                                             <div class="text-center">
                                                 <h2 class="text-primary" id="daily-interest-main">{{ number_format($analytics['investments']['daily_interest'], 2) }}</h2>
-                                                <p class="text-muted">Daily Interest (USDT)</p>
+                                                <p class="text-muted">Daily Interest (DOGE)</p>
                                             </div>
                                         </div>
                                         <div class="col-md-3 col-sm-6 mb-3">
                                             <div class="text-center">
                                                 <h2 class="text-success" id="weekly-interest-main">{{ number_format($analytics['investments']['daily_interest'] * 7, 2) }}</h2>
-                                                <p class="text-muted">Weekly Interest (USDT)</p>
+                                                <p class="text-muted">Weekly Interest (DOGE)</p>
                                             </div>
                                         </div>
                                         <div class="col-md-3 col-sm-6 mb-3">
                                             <div class="text-center">
                                                 <h2 class="text-warning" id="monthly-interest-main">{{ number_format($analytics['investments']['monthly_interest'], 2) }}</h2>
-                                                <p class="text-muted">Monthly Interest (USDT)</p>
+                                                <p class="text-muted">Monthly Interest (DOGE)</p>
                                             </div>
                                         </div>
                                         <div class="col-md-3 col-sm-6 mb-3">
                                             <div class="text-center">
                                                 <h2 class="text-info" id="yearly-interest-main">{{ number_format($analytics['investments']['yearly_interest'], 2) }}</h2>
-                                                <p class="text-muted">Yearly Interest (USDT)</p>
+                                                <p class="text-muted">Yearly Interest (DOGE)</p>
                                             </div>
                                         </div>
                                     </div>
@@ -148,7 +148,7 @@
                                         <thead class="bg-light">
                                             <tr>
                                                 <th>Period</th>
-                                                <th>Earnings (USDT)</th>
+                                                <th>Earnings (DOGE)</th>
                                                 <th>Status</th>
                                             </tr>
                                         </thead>
@@ -189,7 +189,7 @@
                                         <dd class="col-sm-6" id="active-investments">{{ $analytics['investments']['active_count'] }}</dd>
 
                                         <dt class="col-sm-6">Total Expected Return:</dt>
-                                        <dd class="col-sm-6" id="expected-return">{{ number_format($analytics['investments']['total_expected_return'], 2) }} USDT</dd>
+                                        <dd class="col-sm-6" id="expected-return">{{ number_format($analytics['investments']['total_expected_return'], 2) }} DOGE</dd>
 
                                         <dt class="col-sm-6">Average Daily Rate:</dt>
                                         <dd class="col-sm-6" id="avg-daily-rate">{{ number_format($analytics['investments']['average_daily_rate'], 2) }}%</dd>
@@ -201,10 +201,10 @@
                                         <dd class="col-sm-6" id="days-remaining-detail">{{ $analytics['realtime']['days_remaining'] }}</dd>
 
                                         <dt class="col-sm-6">Current Value:</dt>
-                                        <dd class="col-sm-6" id="current-value">{{ number_format($analytics['realtime']['current_value'], 2) }} USDT</dd>
+                                        <dd class="col-sm-6" id="current-value">{{ number_format($analytics['realtime']['current_value'], 2) }} DOGE</dd>
 
                                         <dt class="col-sm-6">Projected Value:</dt>
-                                        <dd class="col-sm-6" id="projected-value">{{ number_format($analytics['realtime']['projected_value'], 2) }} USDT</dd>
+                                        <dd class="col-sm-6" id="projected-value">{{ number_format($analytics['realtime']['projected_value'], 2) }} DOGE</dd>
                                     </dl>
                                 </div>
                             </div>
@@ -250,7 +250,7 @@ function initCharts() {
             data: {
                 labels: weeklyData.map(d => d.day),
                 datasets: [{
-                    label: 'Daily Earnings (USDT)',
+                    label: 'Daily Earnings (DOGE)',
                     data: weeklyData.map(d => d.earnings),
                     backgroundColor: 'rgba(54, 162, 235, 0.2)',
                     borderColor: 'rgba(54, 162, 235, 1)',
@@ -272,7 +272,7 @@ function initCharts() {
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return 'Earnings: ' + context.parsed.y.toFixed(2) + ' USDT';
+                                return 'Earnings: ' + context.parsed.y.toFixed(2) + ' DOGE';
                             }
                         }
                     }
@@ -282,7 +282,7 @@ function initCharts() {
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return value.toFixed(2) + ' USDT';
+                                return value.toFixed(2) + ' DOGE';
                             }
                         }
                     }
@@ -299,7 +299,7 @@ function initCharts() {
             data: {
                 labels: monthlyData.map(d => d.week_label),
                 datasets: [{
-                    label: 'Weekly Earnings (USDT)',
+                    label: 'Weekly Earnings (DOGE)',
                     data: monthlyData.map(d => d.earnings),
                     backgroundColor: 'rgba(75, 192, 192, 0.7)',
                     borderColor: 'rgba(75, 192, 192, 1)',
@@ -317,7 +317,7 @@ function initCharts() {
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return 'Earnings: ' + context.parsed.y.toFixed(2) + ' USDT';
+                                return 'Earnings: ' + context.parsed.y.toFixed(2) + ' DOGE';
                             }
                         }
                     }
@@ -327,7 +327,7 @@ function initCharts() {
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return value.toFixed(2) + ' USDT';
+                                return value.toFixed(2) + ' DOGE';
                             }
                         }
                     }
@@ -352,9 +352,9 @@ function updateAnalytics() {
             const analytics = data.data;
             
             // Update main stats
-            updateElement('current-balance', analytics.wallet.balance.toFixed(2) + ' USDT');
-            updateElement('total-invested-main', analytics.wallet.invested_amount.toFixed(2) + ' USDT');
-            updateElement('total-earned-main', analytics.wallet.earned_amount.toFixed(2) + ' USDT');
+            updateElement('current-balance', analytics.wallet.balance.toFixed(2) + ' DOGE');
+            updateElement('total-invested-main', analytics.wallet.invested_amount.toFixed(2) + ' DOGE');
+            updateElement('total-earned-main', analytics.wallet.earned_amount.toFixed(2) + ' DOGE');
             updateElement('growth-rate-main', analytics.realtime.growth_percentage.toFixed(2) + '%');
             
             // Update interest generation
@@ -371,12 +371,12 @@ function updateAnalytics() {
             
             // Update investment stats
             updateElement('active-investments', analytics.investments.active_count);
-            updateElement('expected-return', analytics.investments.total_expected_return.toFixed(2) + ' USDT');
+            updateElement('expected-return', analytics.investments.total_expected_return.toFixed(2) + ' DOGE');
             updateElement('avg-daily-rate', analytics.investments.average_daily_rate.toFixed(2) + '%');
             updateElement('days-active-detail', analytics.realtime.days_active);
             updateElement('days-remaining-detail', analytics.realtime.days_remaining);
-            updateElement('current-value', analytics.realtime.current_value.toFixed(2) + ' USDT');
-            updateElement('projected-value', analytics.realtime.projected_value.toFixed(2) + ' USDT');
+            updateElement('current-value', analytics.realtime.current_value.toFixed(2) + ' DOGE');
+            updateElement('projected-value', analytics.realtime.projected_value.toFixed(2) + ' DOGE');
             
             // Update charts
             if (analytics.weekly && weeklyChart) {
