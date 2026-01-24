@@ -23,6 +23,13 @@ return Application::configure(basePath: dirname(__DIR__))
             ->hourly()
             ->withoutOverlapping()
             ->runInBackground();
+
+        // Update daily bonuses for earning wallets (self and referral earnings)
+        $schedule->command('app:update-daily-bonus')
+            ->daily()
+            ->at('00:01') // Run at 12:01 AM to process the previous day's earnings
+            ->withoutOverlapping()
+            ->runInBackground();
     })
     ->withMiddleware(function (Middleware $middleware): void {
         // Register Spatie Permission middleware

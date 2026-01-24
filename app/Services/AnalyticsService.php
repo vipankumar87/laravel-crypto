@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\Investment;
 use App\Models\Transaction;
+use App\Models\ReferralBonus;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -26,6 +27,7 @@ class AnalyticsService
             'weekly' => $this->getWeeklyAnalytics($user),
             'monthly' => $this->getMonthlyAnalytics($user),
             'realtime' => $this->getRealtimeStats($user),
+            'earnings_breakdown' => $this->getEarningsBreakdown($user),
         ];
     }
 
@@ -282,5 +284,130 @@ class AnalyticsService
         }
 
         return $data;
+    }
+
+    /**
+     * Get earnings breakdown by type (direct vs referral)
+     */
+    protected function getEarningsBreakdown(User $user)
+    {
+        // Direct earnings from investments (daily returns)
+        $directEarnings = Transaction::where('user_id', $user->id)
+            ->where('type', 'daily_return')
+            ->sum('amount');
+
+        // Referral earnings from referral bonuses
+        $referralEarnings = ReferralBonus::where('referrer_id', $user->id)
+            ->where('status', 'completed')
+            ->sum('amount');
+
+        // Also check for referral earnings in transactions (if any)
+        $referralTransactionEarnings = Transaction::where('user_id', $user->id)
+            ->where('type', 'referral_bonus')
+            ->sum('amount');
+
+        $totalReferralEarnings = $referralEarnings + $referralTransactionEarnings;
+
+        // Get today's breakdown
+        $todayDirectEarnings = Transaction::where('user_id', $user->id)
+            ->where('type', 'daily_return')
+            ->whereDate('created_at', Carbon::today())
+            ->sum('amount');
+
+        $todayReferralEarnings = ReferralBonus::where('referrer_id', $user->id)
+            ->where('status', 'completed')
+            ->whereDate('processed_at', Carbon::today())
+            ->sum('amount');
+
+        $todayReferralTransactionEarnings = Transaction::where('user_id', $user->id)
+            ->where('type', 'referral_bonus')
+            ->whereDate('created_at', Carbon::today())
+            ->sum('amount');
+
+        $todayTotalReferralEarnings = $todayReferralEarnings + $todayReferralTransactionEarnings;
+
+        // Get this week's breakdown
+        $weekDirectEarnings = Transaction::where('user_id', $user->id)
+            ->where('type', 'daily_return')
+            ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            ->sum('amount');
+
+        $weekReferralEarnings = ReferralBonus::where('referrer_id', $user->id)
+            ->where('status', 'completed')
+            ->whereBetween('processed_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            ->sum('amount');
+
+        $weekReferralTransactionEarnings = Transaction::where('user_id', $user->id)
+            ->where('type', 'referral_bonus')
+            ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            ->sum('amount');
+
+        $weekTotalReferralEarnings = $weekReferralEarnings + $weekReferralTransactionEarnings;
+
+        // Get this month's breakdown
+        $monthDirectEarnings = Transaction::where('user_id', $user->id)
+            ->where('type', 'daily_return')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->sum('amount');
+
+        $monthReferralEarnings = ReferralBonus::where('referrer_id', $user->id)
+            ->where('status', 'completed')
+            ->whereMonth('processed_at', Carbon::now()->month)
+            ->whereYear('processed_at', Carbon::now()->year)
+            ->sum('amount');
+
+        $monthReferralTransactionEarnings = Transaction::where('user_id', $user->id)
+            ->where('type', 'referral_bonus')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->sum('amount');
+
+        $monthTotalReferralEarnings = $monthReferralEarnings + $monthReferralTransactionEarnings;
+
+        // Get referral breakdown by level
+        $referralByLevel = ReferralBonus::where('referrer_id', $user->id)
+            ->where('status', 'completed')
+            ->selectRaw('level, SUM(amount) as total, COUNT(*) as count')
+            ->groupBy('level')
+            ->orderBy('level')
+            ->get()
+            ->keyBy('level');
+
+        return [
+            'all_time' => [
+                'direct_earnings' => (float) $directEarnings,
+                'referral_earnings' => (float) $totalReferralEarnings,
+                'total_earnings' => (float) ($directEarnings + $totalReferralEarnings),
+                'direct_percentage' => ($directEarnings + $totalReferralEarnings) > 0 
+                    ? (float) (($directEarnings / ($directEarnings + $totalReferralEarnings)) * 100) 
+                    : 0,
+                'referral_percentage' => ($directEarnings + $totalReferralEarnings) > 0 
+                    ? (float) (($totalReferralEarnings / ($directEarnings + $totalReferralEarnings)) * 100) 
+                    : 0,
+            ],
+            'today' => [
+                'direct_earnings' => (float) $todayDirectEarnings,
+                'referral_earnings' => (float) $todayTotalReferralEarnings,
+                'total_earnings' => (float) ($todayDirectEarnings + $todayTotalReferralEarnings),
+            ],
+            'this_week' => [
+                'direct_earnings' => (float) $weekDirectEarnings,
+                'referral_earnings' => (float) $weekTotalReferralEarnings,
+                'total_earnings' => (float) ($weekDirectEarnings + $weekTotalReferralEarnings),
+            ],
+            'this_month' => [
+                'direct_earnings' => (float) $monthDirectEarnings,
+                'referral_earnings' => (float) $monthTotalReferralEarnings,
+                'total_earnings' => (float) ($monthDirectEarnings + $monthTotalReferralEarnings),
+            ],
+            'referral_by_level' => $referralByLevel->map(function ($item) {
+                return [
+                    'level' => $item->level,
+                    'total_earnings' => (float) $item->total,
+                    'referral_count' => $item->count,
+                ];
+            })->toArray(),
+        ];
     }
 }

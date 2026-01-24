@@ -62,6 +62,188 @@
                         </div>
                     </div>
 
+                    <!-- Earnings Breakdown Section -->
+                    @if($analytics && isset($analytics['earnings_breakdown']))
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card card-outline card-success">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-chart-pie"></i> Earnings Breakdown
+                                    </h3>
+                                    <div class="card-tools">
+                                        <span class="badge badge-success">Direct vs Referral</span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Summary Cards -->
+                                    <div class="row mb-4">
+                                        <div class="col-md-4">
+                                            <div class="info-box bg-gradient-info" data-earnings-type="direct">
+                                                <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Direct Earnings</span>
+                                                    <span class="info-box-number">{{ number_format($analytics['earnings_breakdown']['all_time']['direct_earnings'], 2) }} USDT</span>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-info" style="width: {{ $analytics['earnings_breakdown']['all_time']['direct_percentage'] }}%"></div>
+                                                    </div>
+                                                    <span class="progress-description">
+                                                        {{ number_format($analytics['earnings_breakdown']['all_time']['direct_percentage'], 1) }}% of total
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="info-box bg-gradient-warning" data-earnings-type="referral">
+                                                <span class="info-box-icon"><i class="fas fa-users"></i></span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Referral Earnings</span>
+                                                    <span class="info-box-number">{{ number_format($analytics['earnings_breakdown']['all_time']['referral_earnings'], 2) }} USDT</span>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-warning" style="width: {{ $analytics['earnings_breakdown']['all_time']['referral_percentage'] }}%"></div>
+                                                    </div>
+                                                    <span class="progress-description">
+                                                        {{ number_format($analytics['earnings_breakdown']['all_time']['referral_percentage'], 1) }}% of total
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="info-box bg-gradient-success" data-earnings-type="total">
+                                                <span class="info-box-icon"><i class="fas fa-wallet"></i></span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Total Earnings</span>
+                                                    <span class="info-box-number">{{ number_format($analytics['earnings_breakdown']['all_time']['total_earnings'], 2) }} USDT</span>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-success" style="width: 100%"></div>
+                                                    </div>
+                                                    <span class="progress-description">
+                                                        All time earnings
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Period Breakdown Table -->
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <h5 class="mb-3"><i class="fas fa-table"></i> Earnings by Period</h5>
+                                            <table class="table table-bordered table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Period</th>
+                                                        <th>Direct Earnings</th>
+                                                        <th>Referral Earnings</th>
+                                                        <th>Total</th>
+                                                        <th>Direct %</th>
+                                                        <th>Referral %</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><strong>Today</strong></td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['today']['direct_earnings'], 2) }} USDT</td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['today']['referral_earnings'], 2) }} USDT</td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['today']['total_earnings'], 2) }} USDT</strong></td>
+                                                        <td>
+                                                            @if($analytics['earnings_breakdown']['today']['total_earnings'] > 0)
+                                                                <span class="badge badge-info">{{ number_format(($analytics['earnings_breakdown']['today']['direct_earnings'] / $analytics['earnings_breakdown']['today']['total_earnings']) * 100, 1) }}%</span>
+                                                            @else
+                                                                <span class="badge badge-secondary">0%</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if($analytics['earnings_breakdown']['today']['total_earnings'] > 0)
+                                                                <span class="badge badge-warning">{{ number_format(($analytics['earnings_breakdown']['today']['referral_earnings'] / $analytics['earnings_breakdown']['today']['total_earnings']) * 100, 1) }}%</span>
+                                                            @else
+                                                                <span class="badge badge-secondary">0%</span>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>This Week</strong></td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_week']['direct_earnings'], 2) }} USDT</td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_week']['referral_earnings'], 2) }} USDT</td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['this_week']['total_earnings'], 2) }} USDT</strong></td>
+                                                        <td>
+                                                            @if($analytics['earnings_breakdown']['this_week']['total_earnings'] > 0)
+                                                                <span class="badge badge-info">{{ number_format(($analytics['earnings_breakdown']['this_week']['direct_earnings'] / $analytics['earnings_breakdown']['this_week']['total_earnings']) * 100, 1) }}%</span>
+                                                            @else
+                                                                <span class="badge badge-secondary">0%</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if($analytics['earnings_breakdown']['this_week']['total_earnings'] > 0)
+                                                                <span class="badge badge-warning">{{ number_format(($analytics['earnings_breakdown']['this_week']['referral_earnings'] / $analytics['earnings_breakdown']['this_week']['total_earnings']) * 100, 1) }}%</span>
+                                                            @else
+                                                                <span class="badge badge-secondary">0%</span>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>This Month</strong></td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_month']['direct_earnings'], 2) }} USDT</td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_month']['referral_earnings'], 2) }} USDT</td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['this_month']['total_earnings'], 2) }} USDT</strong></td>
+                                                        <td>
+                                                            @if($analytics['earnings_breakdown']['this_month']['total_earnings'] > 0)
+                                                                <span class="badge badge-info">{{ number_format(($analytics['earnings_breakdown']['this_month']['direct_earnings'] / $analytics['earnings_breakdown']['this_month']['total_earnings']) * 100, 1) }}%</span>
+                                                            @else
+                                                                <span class="badge badge-secondary">0%</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if($analytics['earnings_breakdown']['this_month']['total_earnings'] > 0)
+                                                                <span class="badge badge-warning">{{ number_format(($analytics['earnings_breakdown']['this_month']['referral_earnings'] / $analytics['earnings_breakdown']['this_month']['total_earnings']) * 100, 1) }}%</span>
+                                                            @else
+                                                                <span class="badge badge-secondary">0%</span>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="table-primary">
+                                                        <td><strong>All Time</strong></td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['all_time']['direct_earnings'], 2) }} USDT</strong></td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['all_time']['referral_earnings'], 2) }} USDT</strong></td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['all_time']['total_earnings'], 2) }} USDT</strong></td>
+                                                        <td><strong><span class="badge badge-info">{{ number_format($analytics['earnings_breakdown']['all_time']['direct_percentage'], 1) }}%</span></strong></td>
+                                                        <td><strong><span class="badge badge-warning">{{ number_format($analytics['earnings_breakdown']['all_time']['referral_percentage'], 1) }}%</span></strong></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <!-- Referral Level Breakdown -->
+                                    @if(!empty($analytics['earnings_breakdown']['referral_by_level']))
+                                    <div class="row mt-4">
+                                        <div class="col-12">
+                                            <h5 class="mb-3"><i class="fas fa-sitemap"></i> Referral Earnings by Level</h5>
+                                            <div class="row">
+                                                @foreach($analytics['earnings_breakdown']['referral_by_level'] as $level => $data)
+                                                <div class="col-md-3 mb-3">
+                                                    <div class="small-box bg-light">
+                                                        <div class="inner">
+                                                            <h4>Level {{ $data['level'] }}</h4>
+                                                            <p>{{ number_format($data['total_earnings'], 2) }} USDT</p>
+                                                            <small class="text-muted">{{ $data['referral_count'] }} referrals</small>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <i class="fas fa-layer-group"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                     <!-- Investment Analytics Section -->
                     @if($analytics)
                     <div class="row">
@@ -548,6 +730,46 @@ function updateAnalytics() {
                 updateElement('growth-rate', analytics.realtime.growth_percentage.toFixed(2) + '%');
                 updateElement('days-active', analytics.realtime.days_active);
                 updateElement('days-remaining', analytics.realtime.days_remaining);
+            }
+            
+            // Update earnings breakdown if available
+            if (analytics.earnings_breakdown) {
+                // Update summary cards
+                const breakdown = analytics.earnings_breakdown;
+                
+                // Update direct earnings card
+                const directCard = document.querySelector('[data-earnings-type="direct"]');
+                if (directCard) {
+                    directCard.querySelector('.info-box-number').textContent = breakdown.all_time.direct_earnings.toFixed(2) + ' USDT';
+                    const progressBar = directCard.querySelector('.progress-bar');
+                    if (progressBar) {
+                        progressBar.style.width = breakdown.all_time.direct_percentage + '%';
+                    }
+                    const progressDesc = directCard.querySelector('.progress-description');
+                    if (progressDesc) {
+                        progressDesc.textContent = breakdown.all_time.direct_percentage.toFixed(1) + '% of total';
+                    }
+                }
+                
+                // Update referral earnings card
+                const referralCard = document.querySelector('[data-earnings-type="referral"]');
+                if (referralCard) {
+                    referralCard.querySelector('.info-box-number').textContent = breakdown.all_time.referral_earnings.toFixed(2) + ' USDT';
+                    const progressBar = referralCard.querySelector('.progress-bar');
+                    if (progressBar) {
+                        progressBar.style.width = breakdown.all_time.referral_percentage + '%';
+                    }
+                    const progressDesc = referralCard.querySelector('.progress-description');
+                    if (progressDesc) {
+                        progressDesc.textContent = breakdown.all_time.referral_percentage.toFixed(1) + '% of total';
+                    }
+                }
+                
+                // Update total earnings card
+                const totalCard = document.querySelector('[data-earnings-type="total"]');
+                if (totalCard) {
+                    totalCard.querySelector('.info-box-number').textContent = breakdown.all_time.total_earnings.toFixed(2) + ' USDT';
+                }
             }
             
             // Update charts
