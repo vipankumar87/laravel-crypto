@@ -293,7 +293,7 @@ class AnalyticsService
     {
         // Direct earnings from investments (daily returns)
         $directEarnings = Transaction::where('user_id', $user->id)
-            ->where('type', 'daily_return')
+            ->where('type', 'earning')
             ->sum('amount');
 
         // Referral earnings from referral bonuses
@@ -310,7 +310,7 @@ class AnalyticsService
 
         // Get today's breakdown
         $todayDirectEarnings = Transaction::where('user_id', $user->id)
-            ->where('type', 'daily_return')
+            ->where('type', 'earning')
             ->whereDate('created_at', Carbon::today())
             ->sum('amount');
 
@@ -328,7 +328,7 @@ class AnalyticsService
 
         // Get this week's breakdown
         $weekDirectEarnings = Transaction::where('user_id', $user->id)
-            ->where('type', 'daily_return')
+            ->where('type', 'earning')
             ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
             ->sum('amount');
 
@@ -346,7 +346,7 @@ class AnalyticsService
 
         // Get this month's breakdown
         $monthDirectEarnings = Transaction::where('user_id', $user->id)
-            ->where('type', 'daily_return')
+            ->where('type', 'earning')
             ->whereMonth('created_at', Carbon::now()->month)
             ->whereYear('created_at', Carbon::now()->year)
             ->sum('amount');

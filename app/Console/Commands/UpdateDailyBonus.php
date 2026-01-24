@@ -191,7 +191,7 @@ class UpdateDailyBonus extends Command
                     $wallet->save();
                     
                     // Create transaction record for the earning
-                    $this->createEarningTransaction($investment->user_id, $dailyEarning, 'daily_return', $investment);
+                    $this->createEarningTransaction($investment->user_id, $dailyEarning, 'earning', $investment);
                 } else {
                     $this->error("Wallet not found for user {$investment->user_id}");
                     continue;
