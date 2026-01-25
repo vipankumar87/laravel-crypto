@@ -41,6 +41,16 @@ return Application::configure(basePath: dirname(__DIR__))
 	        storage_path('logs/update-daily-bonus.log'),
 	        true
 	    );
+
+	// Distribute referral bonuses to upline chain
+	$schedule->command('app:distribute-referral-bonus')
+	    ->dailyAt('00:05')
+	    ->withoutOverlapping()
+	    ->runInBackground()
+	    ->appendOutputTo(
+	        storage_path('logs/distribute-referral-bonus.log'),
+	        true
+	    );
     })
     ->withMiddleware(function (Middleware $middleware): void {
         // Register Spatie Permission middleware
