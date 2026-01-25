@@ -6,7 +6,7 @@
             </div>
             <div class="user-info">
                 <h6 class="mb-1">{{ $node['user']->name }}</h6>
-                <small class="text-muted">@{{ $node['user']->username }} | {{ $node['user']->email }}</small>
+                <small class="text-muted">{{ $node['user']->username }} | {{ $node['user']->email }}</small>
                 <div class="mt-1">
                     <span class="badge badge-sm badge-info">Level {{ $node['level'] }}</span>
                     <span class="badge badge-sm badge-success">
