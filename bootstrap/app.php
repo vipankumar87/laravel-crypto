@@ -13,23 +13,34 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withSchedule(function (Schedule $schedule) {
         // Process new transactions and create investments automatically
-        $schedule->command('app:auto-adjust-real-time-payment-to-investors')
-            ->everyFiveMinutes()
-            ->withoutOverlapping()
-            ->runInBackground();
+	// Process new transactions and create investments automatically
+	$schedule->command('app:auto-adjust-real-time-payment-to-investors')
+	    ->everyFiveMinutes()
+	    ->withoutOverlapping()
+	    ->runInBackground()
+	    ->appendOutputTo(
+	        storage_path('logs/auto-adjust-real-time-payment.log'),
+	        true
+	    );
 
-        // Sweep USDT balances from user wallets to main wallet
-        $schedule->command('crypto:sweep')
-            ->hourly()
-            ->withoutOverlapping()
-            ->runInBackground();
+	// Sweep USDT balances from user wallets to main wallet
+	$schedule->command('crypto:sweep')
+	    ->hourly()
+	    ->withoutOverlapping()
+	    ->runInBackground()
+	    ->appendOutputTo(
+	        storage_path('logs/crypto-sweep.log'),
+	        true
+	    );
 
-        // Update daily bonuses for earning wallets (self and referral earnings)
-        $schedule->command('app:update-daily-bonus')
-            ->daily()
-            ->at('00:01') // Run at 12:01 AM to process the previous day's earnings
-            ->withoutOverlapping()
-            ->runInBackground();
+	// Update daily bonuses for earning wallets
+	$schedule->command('app:update-daily-bonus')
+	    ->dailyAt('00:01')
+	    ->runInBackground()
+	    ->appendOutputTo(
+	        storage_path('logs/update-daily-bonus.log'),
+	        true
+	    );
     })
     ->withMiddleware(function (Middleware $middleware): void {
         // Register Spatie Permission middleware

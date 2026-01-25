@@ -283,7 +283,7 @@
                                                 <span class="info-box-icon"><i class="fas fa-wallet"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Wallet Balance</span>
-                                                    <span class="info-box-number" id="wallet-balance">{{ number_format($analytics['wallet']['balance'], 2) }} DOGE</span>
+                                                    <span class="info-box-number" id="wallet-balance">{{ number_format($wallet->balance, 2) }} DOGE</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -292,7 +292,7 @@
                                                 <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Total Invested</span>
-                                                    <span class="info-box-number" id="total-invested">{{ number_format($analytics['wallet']['invested_amount'], 8) }} DOGE</span>
+                                                    <span class="info-box-number" id="total-invested">{{ number_format($wallet->invested_amount, 8) }} DOGE</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -301,7 +301,7 @@
                                                 <span class="info-box-icon"><i class="fas fa-coins"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Total Earned</span>
-                                                    <span class="info-box-number" id="total-earned">{{ number_format($analytics['wallet']['earned_amount'], 8) }} DOGE</span>
+                                                    <span class="info-box-number" id="total-earned">{{ number_format($wallet->earned_amount, 8) }} DOGE</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -310,7 +310,7 @@
                                                 <span class="info-box-icon"><i class="fas fa-piggy-bank"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Total Value</span>
-                                                    <span class="info-box-number" id="total-value">{{ number_format($analytics['wallet']['total_value'], 8) }} DOGE</span>
+                                                    <span class="info-box-number" id="total-value">{{ number_format($wallet->balance + $wallet->invested_amount, 8) }} DOGE</span>
                                                 </div>
                                             </div>
                                         </div>

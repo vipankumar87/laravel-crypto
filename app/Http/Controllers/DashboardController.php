@@ -64,7 +64,9 @@ class DashboardController extends Controller
         } else {
             // Still provide earnings breakdown even without active investments
             $analytics = [
-                'earnings_breakdown' => $this->analyticsService->getEarningsBreakdown($user)
+                'earnings_breakdown' => $this->analyticsService->getEarningsBreakdown($user),
+		'investments'=>['daily_interest'=>0, 'monthly_interest'=>0, 'yearly_interest'=>0],
+		'daily_interest' => [],
             ];
         }
 
