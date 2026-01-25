@@ -166,20 +166,40 @@ class ReferralController extends Controller
         return view('referrals.earnings', compact('bonuses', 'totalEarnings', 'earningsByLevel', 'levelPercentages'));
     }
 
-    private function buildReferralTree($user, $maxLevels, $currentLevel = 1)
+    private function buildReferralTree($user, $maxLevels, $currentLevel = 1, $rootUser = null)
     {
         if ($currentLevel > $maxLevels) {
             return [];
         }
 
+        // Keep track of root user for bonus calculation
+        if ($rootUser === null) {
+            $rootUser = $user;
+        }
+
         $tree = [];
-        $referrals = $user->referrals()->with('wallet')->get();
+        $referrals = $user->referrals()->with(['wallet', 'investments'])->get();
 
         foreach ($referrals as $referral) {
+            // Calculate total investment
+            $totalInvestment = $referral->wallet->invested_amount ?? 0;
+
+            // Calculate referral bonus earned from this user (for the root user)
+            $referralBonusEarned = \App\Models\ReferralBonus::where('referrer_id', $rootUser->id)
+                ->where('user_id', $referral->id)
+                ->where('status', 'completed')
+                ->sum('amount');
+
+            // Count active investments
+            $activeInvestments = $referral->investments->where('status', 'active')->count();
+
             $node = [
                 'user' => $referral,
                 'level' => $currentLevel,
-                'children' => $this->buildReferralTree($referral, $maxLevels, $currentLevel + 1)
+                'total_investment' => $totalInvestment,
+                'referral_bonus_earned' => $referralBonusEarned,
+                'active_investments' => $activeInvestments,
+                'children' => $this->buildReferralTree($referral, $maxLevels, $currentLevel + 1, $rootUser)
             ];
             $tree[] = $node;
         }
