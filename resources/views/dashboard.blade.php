@@ -77,10 +77,10 @@
                                 </div>
                                 <div class="card-body">
                                     @php
-                                        $hasAnyEarnings = $analytics['earnings_breakdown']['all_time']['total_earnings'] > 0
-                                            || $analytics['earnings_breakdown']['today']['total_earnings'] > 0
-                                            || $analytics['earnings_breakdown']['this_week']['total_earnings'] > 0
-                                            || $analytics['earnings_breakdown']['this_month']['total_earnings'] > 0;
+                                        $hasAnyEarnings = ($analytics['earnings_breakdown']['all_time']['total_earnings'] ?? 0) > 0
+                                            || ($analytics['earnings_breakdown']['today']['total_earnings'] ?? 0) > 0
+                                            || ($analytics['earnings_breakdown']['this_week']['total_earnings'] ?? 0) > 0
+                                            || ($analytics['earnings_breakdown']['this_month']['total_earnings'] ?? 0) > 0;
                                     @endphp
                                     @if($hasAnyEarnings)
                                     <!-- Summary Cards -->
@@ -90,12 +90,12 @@
                                                 <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Direct Earnings</span>
-                                                    <span class="info-box-number">{{ number_format($analytics['earnings_breakdown']['all_time']['direct_earnings'], 2) }} DOGE</span>
+                                                    <span class="info-box-number">{{ number_format($analytics['earnings_breakdown']['all_time']['direct_earnings'] ?? 0, 2) }} DOGE</span>
                                                     <div class="progress">
-                                                        <div class="progress-bar bg-info" style="width: {{ $analytics['earnings_breakdown']['all_time']['direct_percentage'] }}%"></div>
+                                                        <div class="progress-bar bg-info" style="width: {{ $analytics['earnings_breakdown']['all_time']['direct_percentage'] ?? 0 }}%"></div>
                                                     </div>
                                                     <span class="progress-description">
-                                                        {{ number_format($analytics['earnings_breakdown']['all_time']['direct_percentage'], 1) }}% of total
+                                                        {{ number_format($analytics['earnings_breakdown']['all_time']['direct_percentage'] ?? 0, 1) }}% of total
                                                     </span>
                                                 </div>
                                             </div>
@@ -105,12 +105,12 @@
                                                 <span class="info-box-icon"><i class="fas fa-users"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Referral Earnings</span>
-                                                    <span class="info-box-number">{{ number_format($analytics['earnings_breakdown']['all_time']['referral_earnings'], 2) }} DOGE</span>
+                                                    <span class="info-box-number">{{ number_format($analytics['earnings_breakdown']['all_time']['referral_earnings'] ?? 0, 2) }} DOGE</span>
                                                     <div class="progress">
-                                                        <div class="progress-bar bg-warning" style="width: {{ $analytics['earnings_breakdown']['all_time']['referral_percentage'] }}%"></div>
+                                                        <div class="progress-bar bg-warning" style="width: {{ $analytics['earnings_breakdown']['all_time']['referral_percentage'] ?? 0 }}%"></div>
                                                     </div>
                                                     <span class="progress-description">
-                                                        {{ number_format($analytics['earnings_breakdown']['all_time']['referral_percentage'], 1) }}% of total
+                                                        {{ number_format($analytics['earnings_breakdown']['all_time']['referral_percentage'] ?? 0, 1) }}% of total
                                                     </span>
                                                 </div>
                                             </div>
@@ -120,7 +120,7 @@
                                                 <span class="info-box-icon"><i class="fas fa-wallet"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Total Earnings</span>
-                                                    <span class="info-box-number">{{ number_format($analytics['earnings_breakdown']['all_time']['total_earnings'], 2) }} DOGE</span>
+                                                    <span class="info-box-number">{{ number_format($analytics['earnings_breakdown']['all_time']['total_earnings'] ?? 0, 2) }} DOGE</span>
                                                     <div class="progress">
                                                         <div class="progress-bar bg-success" style="width: 100%"></div>
                                                     </div>
@@ -150,19 +150,19 @@
                                                 <tbody>
                                                     <tr>
                                                         <td><strong>Today</strong></td>
-                                                        <td>{{ number_format($analytics['earnings_breakdown']['today']['direct_earnings'], 2) }} DOGE</td>
-                                                        <td>{{ number_format($analytics['earnings_breakdown']['today']['referral_earnings'], 2) }} DOGE</td>
-                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['today']['total_earnings'], 2) }} DOGE</strong></td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['today']['direct_earnings'] ?? 0, 2) }} DOGE</td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['today']['referral_earnings'] ?? 0, 2) }} DOGE</td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['today']['total_earnings'] ?? 0, 2) }} DOGE</strong></td>
                                                         <td>
-                                                            @if($analytics['earnings_breakdown']['today']['total_earnings'] > 0)
-                                                                <span class="badge badge-info">{{ number_format(($analytics['earnings_breakdown']['today']['direct_earnings'] / $analytics['earnings_breakdown']['today']['total_earnings']) * 100, 1) }}%</span>
+                                                            @if(($analytics['earnings_breakdown']['today']['total_earnings'] ?? 0) > 0)
+                                                                <span class="badge badge-info">{{ number_format((($analytics['earnings_breakdown']['today']['direct_earnings'] ?? 0) / ($analytics['earnings_breakdown']['today']['total_earnings'] ?? 1)) * 100, 1) }}%</span>
                                                             @else
                                                                 <span class="badge badge-secondary">0%</span>
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            @if($analytics['earnings_breakdown']['today']['total_earnings'] > 0)
-                                                                <span class="badge badge-warning">{{ number_format(($analytics['earnings_breakdown']['today']['referral_earnings'] / $analytics['earnings_breakdown']['today']['total_earnings']) * 100, 1) }}%</span>
+                                                            @if(($analytics['earnings_breakdown']['today']['total_earnings'] ?? 0) > 0)
+                                                                <span class="badge badge-warning">{{ number_format((($analytics['earnings_breakdown']['today']['referral_earnings'] ?? 0) / ($analytics['earnings_breakdown']['today']['total_earnings'] ?? 1)) * 100, 1) }}%</span>
                                                             @else
                                                                 <span class="badge badge-secondary">0%</span>
                                                             @endif
@@ -170,19 +170,19 @@
                                                     </tr>
                                                     <tr>
                                                         <td><strong>This Week</strong></td>
-                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_week']['direct_earnings'], 2) }} DOGE</td>
-                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_week']['referral_earnings'], 2) }} DOGE</td>
-                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['this_week']['total_earnings'], 2) }} DOGE</strong></td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_week']['direct_earnings'] ?? 0, 2) }} DOGE</td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_week']['referral_earnings'] ?? 0, 2) }} DOGE</td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['this_week']['total_earnings'] ?? 0, 2) }} DOGE</strong></td>
                                                         <td>
-                                                            @if($analytics['earnings_breakdown']['this_week']['total_earnings'] > 0)
-                                                                <span class="badge badge-info">{{ number_format(($analytics['earnings_breakdown']['this_week']['direct_earnings'] / $analytics['earnings_breakdown']['this_week']['total_earnings']) * 100, 1) }}%</span>
+                                                            @if(($analytics['earnings_breakdown']['this_week']['total_earnings'] ?? 0) > 0)
+                                                                <span class="badge badge-info">{{ number_format((($analytics['earnings_breakdown']['this_week']['direct_earnings'] ?? 0) / ($analytics['earnings_breakdown']['this_week']['total_earnings'] ?? 1)) * 100, 1) }}%</span>
                                                             @else
                                                                 <span class="badge badge-secondary">0%</span>
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            @if($analytics['earnings_breakdown']['this_week']['total_earnings'] > 0)
-                                                                <span class="badge badge-warning">{{ number_format(($analytics['earnings_breakdown']['this_week']['referral_earnings'] / $analytics['earnings_breakdown']['this_week']['total_earnings']) * 100, 1) }}%</span>
+                                                            @if(($analytics['earnings_breakdown']['this_week']['total_earnings'] ?? 0) > 0)
+                                                                <span class="badge badge-warning">{{ number_format((($analytics['earnings_breakdown']['this_week']['referral_earnings'] ?? 0) / ($analytics['earnings_breakdown']['this_week']['total_earnings'] ?? 1)) * 100, 1) }}%</span>
                                                             @else
                                                                 <span class="badge badge-secondary">0%</span>
                                                             @endif
@@ -190,19 +190,19 @@
                                                     </tr>
                                                     <tr>
                                                         <td><strong>This Month</strong></td>
-                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_month']['direct_earnings'], 2) }} DOGE</td>
-                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_month']['referral_earnings'], 2) }} DOGE</td>
-                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['this_month']['total_earnings'], 2) }} DOGE</strong></td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_month']['direct_earnings'] ?? 0, 2) }} DOGE</td>
+                                                        <td>{{ number_format($analytics['earnings_breakdown']['this_month']['referral_earnings'] ?? 0, 2) }} DOGE</td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['this_month']['total_earnings'] ?? 0, 2) }} DOGE</strong></td>
                                                         <td>
-                                                            @if($analytics['earnings_breakdown']['this_month']['total_earnings'] > 0)
-                                                                <span class="badge badge-info">{{ number_format(($analytics['earnings_breakdown']['this_month']['direct_earnings'] / $analytics['earnings_breakdown']['this_month']['total_earnings']) * 100, 1) }}%</span>
+                                                            @if(($analytics['earnings_breakdown']['this_month']['total_earnings'] ?? 0) > 0)
+                                                                <span class="badge badge-info">{{ number_format((($analytics['earnings_breakdown']['this_month']['direct_earnings'] ?? 0) / ($analytics['earnings_breakdown']['this_month']['total_earnings'] ?? 1)) * 100, 1) }}%</span>
                                                             @else
                                                                 <span class="badge badge-secondary">0%</span>
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            @if($analytics['earnings_breakdown']['this_month']['total_earnings'] > 0)
-                                                                <span class="badge badge-warning">{{ number_format(($analytics['earnings_breakdown']['this_month']['referral_earnings'] / $analytics['earnings_breakdown']['this_month']['total_earnings']) * 100, 1) }}%</span>
+                                                            @if(($analytics['earnings_breakdown']['this_month']['total_earnings'] ?? 0) > 0)
+                                                                <span class="badge badge-warning">{{ number_format((($analytics['earnings_breakdown']['this_month']['referral_earnings'] ?? 0) / ($analytics['earnings_breakdown']['this_month']['total_earnings'] ?? 1)) * 100, 1) }}%</span>
                                                             @else
                                                                 <span class="badge badge-secondary">0%</span>
                                                             @endif
@@ -210,11 +210,11 @@
                                                     </tr>
                                                     <tr class="table-primary">
                                                         <td><strong>All Time</strong></td>
-                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['all_time']['direct_earnings'], 2) }} DOGE</strong></td>
-                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['all_time']['referral_earnings'], 2) }} DOGE</strong></td>
-                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['all_time']['total_earnings'], 2) }} DOGE</strong></td>
-                                                        <td><strong><span class="badge badge-info">{{ number_format($analytics['earnings_breakdown']['all_time']['direct_percentage'], 1) }}%</span></strong></td>
-                                                        <td><strong><span class="badge badge-warning">{{ number_format($analytics['earnings_breakdown']['all_time']['referral_percentage'], 1) }}%</span></strong></td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['all_time']['direct_earnings'] ?? 0, 2) }} DOGE</strong></td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['all_time']['referral_earnings'] ?? 0, 2) }} DOGE</strong></td>
+                                                        <td><strong>{{ number_format($analytics['earnings_breakdown']['all_time']['total_earnings'] ?? 0, 2) }} DOGE</strong></td>
+                                                        <td><strong><span class="badge badge-info">{{ number_format($analytics['earnings_breakdown']['all_time']['direct_percentage'] ?? 0, 1) }}%</span></strong></td>
+                                                        <td><strong><span class="badge badge-warning">{{ number_format($analytics['earnings_breakdown']['all_time']['referral_percentage'] ?? 0, 1) }}%</span></strong></td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -231,9 +231,9 @@
                                                 <div class="col-md-3 mb-3">
                                                     <div class="small-box bg-light">
                                                         <div class="inner">
-                                                            <h4>Level {{ $data['level'] }}</h4>
-                                                            <p>{{ number_format($data['total_earnings'], 2) }} DOGE</p>
-                                                            <small class="text-muted">{{ $data['referral_count'] }} referrals</small>
+                                                            <h4>Level {{ $data['level'] ?? 0 }}</h4>
+                                                            <p>{{ number_format($data['total_earnings'] ?? 0, 2) }} DOGE</p>
+                                                            <small class="text-muted">{{ $data['referral_count'] ?? 0 }} referrals</small>
                                                         </div>
                                                         <div class="icon">
                                                             <i class="fas fa-layer-group"></i>
@@ -283,7 +283,7 @@
                                                 <span class="info-box-icon"><i class="fas fa-wallet"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Wallet Balance</span>
-                                                    <span class="info-box-number" id="wallet-balance">{{ number_format($wallet->balance, 2) }} DOGE</span>
+                                                    <span class="info-box-number" id="wallet-balance">{{ number_format($wallet->balance ?? 0, 2) }} DOGE</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -292,7 +292,7 @@
                                                 <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Total Invested</span>
-                                                    <span class="info-box-number" id="total-invested">{{ number_format($wallet->invested_amount, 8) }} DOGE</span>
+                                                    <span class="info-box-number" id="total-invested">{{ number_format($wallet->invested_amount ?? 0, 8) }} DOGE</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -301,7 +301,7 @@
                                                 <span class="info-box-icon"><i class="fas fa-coins"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Total Earned</span>
-                                                    <span class="info-box-number" id="total-earned">{{ number_format($wallet->earned_amount, 8) }} DOGE</span>
+                                                    <span class="info-box-number" id="total-earned">{{ number_format($wallet->earned_amount ?? 0, 8) }} DOGE</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -310,7 +310,7 @@
                                                 <span class="info-box-icon"><i class="fas fa-piggy-bank"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Total Value</span>
-                                                    <span class="info-box-number" id="total-value">{{ number_format($wallet->balance + $wallet->invested_amount, 8) }} DOGE</span>
+                                                    <span class="info-box-number" id="total-value">{{ number_format(($wallet->balance ?? 0) + ($wallet->invested_amount ?? 0), 8) }} DOGE</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -324,7 +324,7 @@
                                         <div class="col-md-3 col-sm-6">
                                             <div class="small-box bg-light">
                                                 <div class="inner">
-                                                    <h4 id="daily-interest">{{ number_format($analytics['investments']['daily_interest'], 8) }} DOGE</h4>
+                                                    <h4 id="daily-interest">{{ number_format($analytics['investments']['daily_interest'] ?? 0, 8) }} DOGE</h4>
                                                     <p>Daily Interest</p>
                                                 </div>
                                                 <div class="icon">
@@ -335,7 +335,7 @@
                                         <div class="col-md-3 col-sm-6">
                                             <div class="small-box bg-light">
                                                 <div class="inner">
-                                                    <h4 id="weekly-interest">{{ number_format($analytics['investments']['daily_interest'] * 7, 8) }} DOGE</h4>
+                                                    <h4 id="weekly-interest">{{ number_format(($analytics['investments']['daily_interest'] ?? 0) * 7, 8) }} DOGE</h4>
                                                     <p>Weekly Interest</p>
                                                 </div>
                                                 <div class="icon">
@@ -346,7 +346,7 @@
                                         <div class="col-md-3 col-sm-6">
                                             <div class="small-box bg-light">
                                                 <div class="inner">
-                                                    <h4 id="monthly-interest">{{ number_format($analytics['investments']['monthly_interest'], 8) }} DOGE</h4>
+                                                    <h4 id="monthly-interest">{{ number_format($analytics['investments']['monthly_interest'] ?? 0, 8) }} DOGE</h4>
                                                     <p>Monthly Interest</p>
                                                 </div>
                                                 <div class="icon">
@@ -357,7 +357,7 @@
                                         <div class="col-md-3 col-sm-6">
                                             <div class="small-box bg-light">
                                                 <div class="inner">
-                                                    <h4 id="yearly-interest">{{ number_format($analytics['investments']['yearly_interest'], 8) }} DOGE</h4>
+                                                    <h4 id="yearly-interest">{{ number_format($analytics['investments']['yearly_interest'] ?? 0, 8) }} DOGE</h4>
                                                     <p>Yearly Interest</p>
                                                 </div>
                                                 <div class="icon">
@@ -410,22 +410,22 @@
                                                         <tbody>
                                                             <tr>
                                                                 <td><strong>Today</strong></td>
-                                                                <td id="interest-today">{{ number_format($analytics['interest']['today'], 2) }} DOGE</td>
+                                                                <td id="interest-today">{{ number_format($analytics['interest']['today'] ?? 0, 2) }} DOGE</td>
                                                                 <td><span class="badge badge-success">Active</span></td>
                                                             </tr>
                                                             <tr>
                                                                 <td><strong>This Week</strong></td>
-                                                                <td id="interest-week">{{ number_format($analytics['interest']['this_week'], 2) }} DOGE</td>
-                                                                <td><span class="badge badge-info">{{ number_format($analytics['weekly']['total'], 2) }} DOGE</span></td>
+                                                                <td id="interest-week">{{ number_format($analytics['interest']['this_week'] ?? 0, 2) }} DOGE</td>
+                                                                <td><span class="badge badge-info">{{ number_format($analytics['weekly']['total'] ?? 0, 2) }} DOGE</span></td>
                                                             </tr>
                                                             <tr>
                                                                 <td><strong>This Month</strong></td>
-                                                                <td id="interest-month">{{ number_format($analytics['interest']['this_month'], 2) }} DOGE</td>
-                                                                <td><span class="badge badge-primary">{{ number_format($analytics['monthly']['total'], 2) }} DOGE</span></td>
+                                                                <td id="interest-month">{{ number_format($analytics['interest']['this_month'] ?? 0, 2) }} DOGE</td>
+                                                                <td><span class="badge badge-primary">{{ number_format($analytics['monthly']['total'] ?? 0, 2) }} DOGE</span></td>
                                                             </tr>
                                                             <tr>
                                                                 <td><strong>All Time</strong></td>
-                                                                <td id="interest-alltime">{{ number_format($analytics['interest']['all_time'], 2) }} DOGE</td>
+                                                                <td id="interest-alltime">{{ number_format($analytics['interest']['all_time'] ?? 0, 2) }} DOGE</td>
                                                                 <td><span class="badge badge-warning">Total</span></td>
                                                             </tr>
                                                         </tbody>
@@ -442,7 +442,7 @@
                                                 <span class="info-box-icon bg-success"><i class="fas fa-arrow-up"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Growth Rate</span>
-                                                    <span class="info-box-number" id="growth-rate">{{ number_format($analytics['realtime']['growth_percentage'], 2) }}%</span>
+                                                    <span class="info-box-number" id="growth-rate">{{ number_format($analytics['realtime']['growth_percentage'] ?? 0, 2) }}%</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -451,7 +451,7 @@
                                                 <span class="info-box-icon bg-info"><i class="fas fa-clock"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Days Active</span>
-                                                    <span class="info-box-number" id="days-active">{{ $analytics['realtime']['days_active'] }}</span>
+                                                    <span class="info-box-number" id="days-active">{{ $analytics['realtime']['days_active'] ?? 0 }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -460,7 +460,7 @@
                                                 <span class="info-box-icon bg-warning"><i class="fas fa-hourglass-half"></i></span>
                                                 <div class="info-box-content">
                                                     <span class="info-box-text">Days Remaining</span>
-                                                    <span class="info-box-number" id="days-remaining">{{ $analytics['realtime']['days_remaining'] }}</span>
+                                                    <span class="info-box-number" id="days-remaining">{{ $analytics['realtime']['days_remaining'] ?? 0 }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -609,8 +609,8 @@ let updateInterval;
 
 // Initialize charts
 function initCharts() {
-    const weeklyData = @json($analytics['weekly']['data']);
-    const monthlyData = @json($analytics['monthly']['data']);
+    const weeklyData = @json($analytics['weekly']['data'] ?? []);
+    const monthlyData = @json($analytics['monthly']['data'] ?? []);
 
     // Weekly Chart
     const weeklyCtx = document.getElementById('weeklyChart');
