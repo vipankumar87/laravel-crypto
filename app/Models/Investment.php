@@ -67,6 +67,11 @@ class Investment extends Model
         return $this->belongsTo(InvestmentPlan::class);
     }
 
+    public function referralBonuses()
+    {
+        return $this->hasMany(ReferralBonus::class);
+    }
+
     // Helper methods
     public function calculateDailyEarning()
     {
