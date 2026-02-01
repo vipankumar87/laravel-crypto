@@ -48,6 +48,25 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update the user's BEP-20 wallet address.
+     */
+    public function updateWallet(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'bep_wallet_address' => ['nullable', 'string', 'size:42', 'regex:/^0x[a-fA-F0-9]{40}$/'],
+        ], [
+            'bep_wallet_address.regex' => 'The wallet address must be a valid BSC address starting with 0x.',
+            'bep_wallet_address.size' => 'The wallet address must be exactly 42 characters.',
+        ]);
+
+        $request->user()->update([
+            'bep_wallet_address' => $request->bep_wallet_address,
+        ]);
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    /**
      * Delete the user's account.
      */
     public function destroy(Request $request): RedirectResponse

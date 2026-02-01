@@ -124,6 +124,7 @@ Route::middleware(['auth', 'verified', 'ensure.user.role'])->group(function () {
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/wallet', [ProfileController::class, 'updateWallet'])->name('profile.update-wallet');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
