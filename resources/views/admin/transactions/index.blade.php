@@ -93,6 +93,7 @@
                         <th>Amount</th>
                         <th>Net Amount</th>
                         <th>Status</th>
+                        <th>Tx Hash</th>
                         <th>Date</th>
                         <th>Actions</th>
                     </tr>
@@ -144,6 +145,18 @@
                                     {{ ucfirst($transaction->status ?? 'pending') }}
                                 </span>
                             </td>
+                            <td>
+                                @if($transaction->tx_hash)
+                                    <a href="https://bscscan.com/tx/{{ $transaction->tx_hash }}" target="_blank" title="{{ $transaction->tx_hash }}">
+                                        <code>{{ substr($transaction->tx_hash, 0, 10) }}...</code>
+                                        <i class="fas fa-external-link-alt fa-xs"></i>
+                                    </a>
+                                @elseif($transaction->type === 'withdrawal' && $transaction->status === 'completed')
+                                    <span class="badge badge-info"><i class="fas fa-clock"></i> Awaiting transfer</span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
                             <td>{{ ($transaction->created_at ?? now())->format('M d, Y H:i') }}</td>
                             <td>
                                 <div class="btn-group">
@@ -168,7 +181,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="11" class="text-center text-muted">No transactions found</td>
+                            <td colspan="12" class="text-center text-muted">No transactions found</td>
                         </tr>
                     @endforelse
                 </tbody>
