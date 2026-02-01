@@ -63,59 +63,89 @@ class AutoAdjustRealTimePaymentToInvestors extends Command
                     }
 
                     // Convert USDT amount to Dogecoin value
-
                     $usdtAmount = floatval($transaction->amount);
                     $conversionResult = $this->convertUsdtToDogecoin($usdtAmount);
-                    
+
                     if (!$conversionResult) {
                         $this->warn("Failed to convert USDT to Dogecoin for transaction ID: {$transaction->id}");
                         continue;
                     }
-                    
+
                     $dogecoinValue = $conversionResult['doge_value'];
                     $dogeRate = $conversionResult['doge_rate'];
-                    
+
                     $this->info(sprintf("Processing: %f USDT = %f DOGE (Rate: 1 DOGE = $%f)", $usdtAmount, $dogecoinValue, $dogeRate));
-                    
-                    // Get investment plan based on USDT amount (not DOGE)
-                    $investmentPlan = InvestmentPlan::where('status', 'active')
-                        ->where('min_amount', '<=', $usdtAmount)
-                        ->where(function($query) use ($usdtAmount) {
-                            $query->whereNull('max_amount')
-                                  ->orWhere('max_amount', '>=', $usdtAmount);
-                        })
-                        ->orderBy('daily_return_rate', 'desc')
+
+                    // Check for existing pending investment for this user (created from crypto payment flow)
+                    $pendingInvestment = Investment::where('user_id', $user->id)
+                        ->where('status', 'pending')
+                        ->where('payment_method', 'crypto')
+                        ->orderBy('created_at', 'desc')
                         ->first();
-                    
-                    if (!$investmentPlan) {
-                        $this->warn("No suitable investment plan found for amount {$usdtAmount} USDT");
-                        continue;
+
+                    if ($pendingInvestment) {
+                        // Update existing pending investment with actual amounts
+                        $investmentPlan = InvestmentPlan::find($pendingInvestment->investment_plan_id);
+
+                        if (!$investmentPlan) {
+                            $this->warn("Investment plan not found for pending investment ID: {$pendingInvestment->id}");
+                            continue;
+                        }
+
+                        $expectedReturn = $dogecoinValue * ($investmentPlan->total_return_rate / 100);
+
+                        $pendingInvestment->update([
+                            'amount' => $dogecoinValue,
+                            'doge_rate' => $dogeRate,
+                            'expected_return' => $expectedReturn,
+                            'earned_amount' => 0,
+                            'status' => 'active',
+                            'start_date' => now(),
+                            'end_date' => now()->addDays($investmentPlan->duration_days),
+                        ]);
+
+                        $investment = $pendingInvestment;
+                        $this->line("Updated pending investment ID {$investment->id} for user {$user->username}");
+                    } else {
+                        // No pending investment found, create a new one
+                        $investmentPlan = InvestmentPlan::where('status', 'active')
+                            ->where('min_amount', '<=', $usdtAmount)
+                            ->where(function($query) use ($usdtAmount) {
+                                $query->whereNull('max_amount')
+                                      ->orWhere('max_amount', '>=', $usdtAmount);
+                            })
+                            ->orderBy('daily_return_rate', 'desc')
+                            ->first();
+
+                        if (!$investmentPlan) {
+                            $this->warn("No suitable investment plan found for amount {$usdtAmount} USDT");
+                            continue;
+                        }
+
+                        $expectedReturn = $dogecoinValue * ($investmentPlan->total_return_rate / 100);
+
+                        $investment = Investment::create([
+                            'user_id' => $user->id,
+                            'investment_plan_id' => $investmentPlan->id,
+                            'investment_plan' => $investmentPlan->name,
+                            'amount' => $dogecoinValue,
+                            'doge_rate' => $dogeRate,
+                            'expected_return' => $expectedReturn,
+                            'earned_amount' => 0,
+                            'duration_days' => $investmentPlan->duration_days,
+                            'daily_return_rate' => $investmentPlan->daily_return_rate,
+                            'status' => 'active',
+                            'payment_method' => 'crypto',
+                            'start_date' => now(),
+                            'end_date' => now()->addDays($investmentPlan->duration_days),
+                        ]);
+
+                        $this->line("Created new investment ID {$investment->id} for user {$user->username}");
                     }
-                    
-                    // Create investment
-                    $expectedReturn = $dogecoinValue * ($investmentPlan->total_return_rate / 100);
-                    $startDate = now();
-                    $endDate = now()->addDays($investmentPlan->duration_days);
-                    
-                    $investment = Investment::create([
-                        'user_id' => $user->id,
-                        'investment_plan_id' => $investmentPlan->id,
-                        'investment_plan' => $investmentPlan->name,
-                        'amount' => $dogecoinValue,
-                        'doge_rate' => $dogeRate,
-                        'expected_return' => $expectedReturn,
-                        'earned_amount' => 0,
-                        'duration_days' => $investmentPlan->duration_days,
-                        'daily_return_rate' => $investmentPlan->daily_return_rate,
-                        'status' => 'active',
-                        'payment_method' => 'crypto',
-                        'start_date' => $startDate,
-                        'end_date' => $endDate,
-                    ]);
-                    
+
                     // Link transaction to investment
                     $transaction->update(['invests_id' => $investment->id]);
-                    
+
                     // Update wallet invested_amount
                     if ($user->wallet) {
                         $user->wallet->increment('invested_amount', $dogecoinValue);
@@ -128,8 +158,7 @@ class AutoAdjustRealTimePaymentToInvestors extends Command
                             'withdrawn_amount' => 0,
                         ]);
                     }
-                    
-                    $this->line("✅ Created investment ID {$investment->id} for user {$user->username}");
+
                     $this->line("   USDT: {$usdtAmount} → DOGE: {$dogecoinValue}");
                     $this->line("   Plan: {$investmentPlan->name} | Expected Return: {$expectedReturn} DOGE");
                     
