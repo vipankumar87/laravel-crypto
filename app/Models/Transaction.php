@@ -13,6 +13,7 @@ class Transaction extends Model
         'user_id',
         'transaction_id',
         'type',
+        'currency',
         'amount',
         'fee',
         'net_amount',
@@ -50,5 +51,10 @@ class Transaction extends Model
     public function scopeByType($query, $type)
     {
         return $query->where('type', $type);
+    }
+
+    public function scopeByCurrency($query, $currency)
+    {
+        return $query->where('currency', $currency);
     }
 }

@@ -33,6 +33,7 @@
                                 <option value="investment" {{ request('type') === 'investment' ? 'selected' : '' }}>Investment</option>
                                 <option value="referral_bonus" {{ request('type') === 'referral_bonus' ? 'selected' : '' }}>Referral Bonus</option>
                                 <option value="earnings" {{ request('type') === 'earnings' ? 'selected' : '' }}>Earnings</option>
+                                <option value="doge_bonus" {{ request('type') === 'doge_bonus' ? 'selected' : '' }}>DOGE Bonus</option>
                             </select>
                         </div>
                     </div>
@@ -65,6 +66,13 @@
         </div>
     </div>
 
+    <!-- Bulk Approve Button -->
+    <div class="mb-3" id="bulkApproveContainer" style="display: none;">
+        <button type="button" class="btn btn-success" id="bulkApproveBtn" onclick="bulkApprove()">
+            <i class="fas fa-check-double"></i> Bulk Approve Selected (<span id="selectedCount">0</span>)
+        </button>
+    </div>
+
     <!-- Transactions Table -->
     <div class="card">
         <div class="card-header">
@@ -74,10 +82,14 @@
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
+                        <th style="width: 40px;">
+                            <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
+                        </th>
                         <th>ID</th>
                         <th>Transaction ID</th>
                         <th>User</th>
                         <th>Type</th>
+                        <th>Currency</th>
                         <th>Amount</th>
                         <th>Net Amount</th>
                         <th>Status</th>
@@ -88,6 +100,11 @@
                 <tbody>
                     @forelse($transactions ?? [] as $transaction)
                         <tr>
+                            <td>
+                                @if(($transaction->status ?? 'pending') === 'pending' && ($transaction->type ?? '') === 'withdrawal')
+                                    <input type="checkbox" class="txn-checkbox" value="{{ $transaction->id }}" onchange="updateSelectedCount()">
+                                @endif
+                            </td>
                             <td>{{ $transaction->id ?? 'N/A' }}</td>
                             <td>
                                 <code>{{ $transaction->transaction_id ?? 'N/A' }}</code>
@@ -101,17 +118,23 @@
                                 <span class="badge badge-{{
                                     ($transaction->type ?? 'deposit') === 'deposit' ? 'success' :
                                     (($transaction->type ?? 'deposit') === 'withdrawal' ? 'warning' :
-                                    (($transaction->type ?? 'deposit') === 'investment' ? 'info' : 'primary'))
+                                    (($transaction->type ?? 'deposit') === 'investment' ? 'info' :
+                                    (($transaction->type ?? 'deposit') === 'doge_bonus' ? 'dark' : 'primary')))
                                 }}">
                                     {{ ucfirst(str_replace('_', ' ', $transaction->type ?? 'deposit')) }}
                                 </span>
                             </td>
                             <td>
-                                <span class="{{ in_array($transaction->type ?? 'deposit', ['withdrawal', 'investment']) ? 'text-danger' : 'text-success' }}">
-                                    {{ in_array($transaction->type ?? 'deposit', ['withdrawal', 'investment']) ? '-' : '+' }}${{ number_format($transaction->amount ?? 0, 2) }}
+                                <span class="badge badge-{{ ($transaction->currency ?? 'USDT') === 'DOGE' ? 'warning' : 'light' }}">
+                                    {{ $transaction->currency ?? 'USDT' }}
                                 </span>
                             </td>
-                            <td>${{ number_format($transaction->net_amount ?? 0, 2) }}</td>
+                            <td>
+                                <span class="{{ in_array($transaction->type ?? 'deposit', ['withdrawal', 'investment']) ? 'text-danger' : 'text-success' }}">
+                                    {{ in_array($transaction->type ?? 'deposit', ['withdrawal', 'investment']) ? '-' : '+' }}{{ ($transaction->currency ?? 'USDT') === 'DOGE' ? '' : '$' }}{{ number_format($transaction->amount ?? 0, ($transaction->currency ?? 'USDT') === 'DOGE' ? 8 : 2) }}
+                                </span>
+                            </td>
+                            <td>{{ ($transaction->currency ?? 'USDT') === 'DOGE' ? '' : '$' }}{{ number_format($transaction->net_amount ?? 0, ($transaction->currency ?? 'USDT') === 'DOGE' ? 8 : 2) }}</td>
                             <td>
                                 <span class="badge badge-{{
                                     ($transaction->status ?? 'pending') === 'completed' ? 'success' :
@@ -145,7 +168,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center text-muted">No transactions found</td>
+                            <td colspan="11" class="text-center text-muted">No transactions found</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -257,7 +280,6 @@ function viewTransaction(transactionId) {
     $('#transactionModal').modal('show');
     $('#transactionDetails').html('Loading transaction details...');
 
-    // In a real implementation, you would fetch transaction details via AJAX
     setTimeout(() => {
         $('#transactionDetails').html(`
             <table class="table table-bordered">
@@ -271,6 +293,64 @@ function viewTransaction(transactionId) {
             </table>
         `);
     }, 500);
+}
+
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.txn-checkbox');
+    checkboxes.forEach(cb => cb.checked = selectAll.checked);
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const checked = document.querySelectorAll('.txn-checkbox:checked');
+    const count = checked.length;
+    document.getElementById('selectedCount').textContent = count;
+    document.getElementById('bulkApproveContainer').style.display = count > 0 ? 'block' : 'none';
+}
+
+function bulkApprove() {
+    const checked = document.querySelectorAll('.txn-checkbox:checked');
+    const ids = Array.from(checked).map(cb => parseInt(cb.value));
+
+    if (ids.length === 0) {
+        alert('No transactions selected');
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to approve ${ids.length} transaction(s)?`)) {
+        return;
+    }
+
+    const btn = document.getElementById('bulkApproveBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+    fetch('{{ route("admin.transactions.bulk-approve") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({ transaction_ids: ids })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            window.location.reload();
+        } else {
+            alert('Error: ' + data.message);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-double"></i> Bulk Approve Selected (<span id="selectedCount">' + ids.length + '</span>)';
+        }
+    })
+    .catch(error => {
+        alert('Request failed. Please try again.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check-double"></i> Bulk Approve Selected (<span id="selectedCount">' + ids.length + '</span>)';
+    });
 }
 </script>
 @stop

@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             UserSeeder::class,
             InvestmentPlanSeeder::class,
+            WithdrawalSettingSeeder::class,
         ]);
     }
 }

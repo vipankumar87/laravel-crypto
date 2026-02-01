@@ -162,10 +162,17 @@ Route::middleware(['auth', 'ensure.admin.role'])->prefix('admin')->name('admin.'
     Route::delete('/fee-settings/{feeSetting}', [App\Http\Controllers\Admin\FeeSettingsController::class, 'destroy'])->name('fee-settings.destroy');
     Route::post('/fee-settings/calculate', [App\Http\Controllers\Admin\FeeSettingsController::class, 'calculate'])->name('fee-settings.calculate');
 
+    // Withdrawal Settings
+    Route::get('/withdrawal-settings', [App\Http\Controllers\Admin\WithdrawalSettingsController::class, 'index'])->name('withdrawal-settings.index');
+    Route::put('/withdrawal-settings', [App\Http\Controllers\Admin\WithdrawalSettingsController::class, 'update'])->name('withdrawal-settings.update');
+    Route::post('/withdrawal-settings', [App\Http\Controllers\Admin\WithdrawalSettingsController::class, 'store'])->name('withdrawal-settings.store');
+    Route::delete('/withdrawal-settings/{withdrawalSetting}', [App\Http\Controllers\Admin\WithdrawalSettingsController::class, 'destroy'])->name('withdrawal-settings.destroy');
+
     // Transaction Management
     Route::get('/transactions', [App\Http\Controllers\Admin\AdminController::class, 'transactions'])->name('transactions.index');
     Route::post('/transactions/{transaction}/approve', [App\Http\Controllers\Admin\UserManagementController::class, 'approveTransaction'])->name('transactions.approve');
     Route::post('/transactions/{transaction}/reject', [App\Http\Controllers\Admin\UserManagementController::class, 'rejectTransaction'])->name('transactions.reject');
+    Route::post('/transactions/bulk-approve', [App\Http\Controllers\Admin\UserManagementController::class, 'bulkApproveTransactions'])->name('transactions.bulk-approve');
 
     // Investment Management
     Route::get('/investments', [App\Http\Controllers\Admin\AdminController::class, 'investments'])->name('investments.index');

@@ -156,14 +156,25 @@ class UserManagementController extends Controller
                 'processed_at' => now(),
             ]);
 
-            // If it's a withdrawal, deduct from wallet
+            // If it's a withdrawal, deduct from wallet based on currency
             if ($transaction->type === 'withdrawal') {
                 $user = $transaction->user;
-                if ($user->wallet && $user->wallet->balance >= $transaction->amount) {
-                    $user->wallet->update([
-                        'balance' => $user->wallet->balance - $transaction->amount,
-                        'withdrawn_amount' => $user->wallet->withdrawn_amount + $transaction->amount,
-                    ]);
+                $currency = $transaction->currency ?? 'USDT';
+
+                if ($currency === 'DOGE') {
+                    if ($user->wallet && $user->wallet->doge_balance >= $transaction->amount) {
+                        $user->wallet->update([
+                            'doge_balance' => $user->wallet->doge_balance - $transaction->amount,
+                            'doge_withdrawn' => $user->wallet->doge_withdrawn + $transaction->amount,
+                        ]);
+                    }
+                } else {
+                    if ($user->wallet && $user->wallet->balance >= $transaction->amount) {
+                        $user->wallet->update([
+                            'balance' => $user->wallet->balance - $transaction->amount,
+                            'withdrawn_amount' => $user->wallet->withdrawn_amount + $transaction->amount,
+                        ]);
+                    }
                 }
             }
 
@@ -174,6 +185,7 @@ class UserManagementController extends Controller
                 ->withProperties([
                     'transaction_id' => $transaction->transaction_id,
                     'amount' => $transaction->amount,
+                    'currency' => $transaction->currency ?? 'USDT',
                     'admin_action' => 'approve_transaction'
                 ])
                 ->log('Admin approved transaction');
@@ -192,6 +204,84 @@ class UserManagementController extends Controller
                 'message' => 'Failed to approve transaction: ' . $e->getMessage()
             ]);
         }
+    }
+
+    public function bulkApproveTransactions(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'transaction_ids' => 'required|array|min:1',
+            'transaction_ids.*' => 'required|integer|exists:transactions,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first()
+            ]);
+        }
+
+        $approved = 0;
+        $failed = 0;
+
+        foreach ($request->transaction_ids as $id) {
+            $transaction = Transaction::find($id);
+
+            if (!$transaction || $transaction->status !== 'pending' || $transaction->type !== 'withdrawal') {
+                $failed++;
+                continue;
+            }
+
+            DB::beginTransaction();
+
+            try {
+                $transaction->update([
+                    'status' => 'completed',
+                    'processed_at' => now(),
+                ]);
+
+                $user = $transaction->user;
+                $currency = $transaction->currency ?? 'USDT';
+
+                if ($currency === 'DOGE') {
+                    if ($user->wallet && $user->wallet->doge_balance >= $transaction->amount) {
+                        $user->wallet->update([
+                            'doge_balance' => $user->wallet->doge_balance - $transaction->amount,
+                            'doge_withdrawn' => $user->wallet->doge_withdrawn + $transaction->amount,
+                        ]);
+                    }
+                } else {
+                    if ($user->wallet && $user->wallet->balance >= $transaction->amount) {
+                        $user->wallet->update([
+                            'balance' => $user->wallet->balance - $transaction->amount,
+                            'withdrawn_amount' => $user->wallet->withdrawn_amount + $transaction->amount,
+                        ]);
+                    }
+                }
+
+                DB::commit();
+                $approved++;
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                $failed++;
+            }
+        }
+
+        activity()
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'admin_action' => 'bulk_approve_transactions',
+                'approved' => $approved,
+                'failed' => $failed,
+            ])
+            ->log('Admin bulk approved transactions');
+
+        return response()->json([
+            'success' => true,
+            'message' => "Bulk approve complete: {$approved} approved, {$failed} failed",
+            'approved' => $approved,
+            'failed' => $failed,
+        ]);
     }
 
     public function rejectTransaction(Request $request, Transaction $transaction)

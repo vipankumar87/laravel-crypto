@@ -28,7 +28,7 @@
                             <div class="info-box">
                                 <span class="info-box-icon bg-success"><i class="fas fa-wallet"></i></span>
                                 <div class="info-box-content">
-                                    <span class="info-box-text">Balance</span>
+                                    <span class="info-box-text">USDT Balance</span>
                                     <span class="info-box-number">${{ number_format($wallet->balance, 2) }}</span>
                                 </div>
                             </div>
@@ -61,6 +61,19 @@
                             </div>
                         </div>
                     </div>
+                    <!-- DOGE Balance -->
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <div class="info-box bg-gradient-warning">
+                                <span class="info-box-icon"><i class="fas fa-dog"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">DOGE Balance</span>
+                                    <span class="info-box-number">{{ number_format($wallet->doge_balance, 8) }} DOGE</span>
+                                    <span class="info-box-text">Withdrawn: {{ number_format($wallet->doge_withdrawn, 8) }} DOGE</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -89,15 +102,46 @@
                     @endcan
 
                     @cannot('manage wallets')
+                        @if($pendingWithdrawals > 0)
+                            <div class="alert alert-warning">
+                                <i class="fas fa-clock"></i> You have <strong>{{ $pendingWithdrawals }}</strong> pending withdrawal{{ $pendingWithdrawals > 1 ? 's' : '' }}.
+                            </div>
+                        @endif
+
+                        @if(!$canWithdraw)
+                            <div class="alert alert-danger">
+                                <i class="fas fa-lock"></i> USDT withdrawals locked. You need at least <strong>${{ number_format($withdrawalSettings['min_usdt_threshold'], 2) }}</strong> in total earnings.
+                                <br>Current total earnings: <strong>${{ number_format($wallet->earned_amount + $wallet->referral_earnings, 2) }}</strong>
+                            </div>
+                        @endif
+
                         <form method="POST" action="{{ route('wallet.withdraw') }}">
                             @csrf
-                            <div class="input-group">
-                                <input type="number" name="amount" class="form-control" placeholder="Withdraw Amount" step="0.01" min="1" max="{{ $wallet->balance }}" required>
+                            <div class="form-group">
+                                <label>Currency</label>
+                                <select name="currency" id="withdrawCurrency" class="form-control">
+                                    <option value="USDT" {{ !$canWithdraw ? 'disabled' : '' }}>USDT (Balance: ${{ number_format($wallet->balance, 2) }})</option>
+                                    <option value="DOGE" {{ $wallet->doge_balance <= 0 ? 'disabled' : '' }}>DOGE (Balance: {{ number_format($wallet->doge_balance, 8) }})</option>
+                                </select>
+                            </div>
+                            <div class="input-group mb-2">
+                                <input type="number"
+                                       name="amount"
+                                       id="withdrawAmount"
+                                       class="form-control"
+                                       placeholder="Withdraw Amount"
+                                       step="0.01"
+                                       min="1"
+                                       max="{{ $wallet->balance }}"
+                                       required>
                                 <div class="input-group-append">
                                     <button type="submit" class="btn btn-warning">Request Withdrawal</button>
                                 </div>
                             </div>
-                            <small class="text-muted">Withdrawal requests require admin approval</small>
+                            <small class="text-muted">
+                                Max per withdrawal: ${{ number_format($withdrawalSettings['max_withdrawal_amount'], 2) }}
+                                | Withdrawal requests require admin approval
+                            </small>
                         </form>
                     @else
                         <div class="alert alert-warning">
@@ -121,11 +165,36 @@
                             {{ ucfirst($wallet->status) }}
                         </span>
                     </p>
-                    <p><strong>Total Withdrawn:</strong> ${{ number_format($wallet->withdrawn_amount, 2) }}</p>
+                    <p><strong>Total USDT Withdrawn:</strong> ${{ number_format($wallet->withdrawn_amount, 2) }}</p>
+                    <p><strong>Total DOGE Withdrawn:</strong> {{ number_format($wallet->doge_withdrawn, 8) }} DOGE</p>
                     <p><strong>Last Updated:</strong> {{ $wallet->updated_at->format('M d, Y H:i') }}</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+@stop
+
+@section('js')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const currencySelect = document.getElementById('withdrawCurrency');
+    const amountInput = document.getElementById('withdrawAmount');
+
+    if (currencySelect && amountInput) {
+        currencySelect.addEventListener('change', function() {
+            if (this.value === 'USDT') {
+                amountInput.max = {{ $wallet->balance }};
+                amountInput.step = '0.01';
+                amountInput.placeholder = 'Withdraw USDT Amount';
+            } else {
+                amountInput.max = {{ $wallet->doge_balance }};
+                amountInput.step = '0.00000001';
+                amountInput.placeholder = 'Withdraw DOGE Amount';
+            }
+            amountInput.value = '';
+        });
+    }
+});
+</script>
 @stop

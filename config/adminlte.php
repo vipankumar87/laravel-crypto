@@ -359,6 +359,12 @@ return [
             'icon' => 'fas fa-fw fa-percentage',
             'can' => 'access-admin-features',
         ],
+        [
+            'text' => 'Withdrawal Settings',
+            'route' => 'admin.withdrawal-settings.index',
+            'icon' => 'fas fa-fw fa-money-check-alt',
+            'can' => 'access-admin-features',
+        ],
 
         // REGULAR USER-ONLY SECTIONS
         [
