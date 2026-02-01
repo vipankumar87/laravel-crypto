@@ -28,8 +28,8 @@
                             <div class="info-box">
                                 <span class="info-box-icon bg-success"><i class="fas fa-wallet"></i></span>
                                 <div class="info-box-content">
-                                    <span class="info-box-text">USDT Balance</span>
-                                    <span class="info-box-number">${{ number_format($wallet->balance, 2) }}</span>
+                                    <span class="info-box-text">Balance</span>
+                                    <span class="info-box-number">DOGE {{ number_format($wallet->balance, 2) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -38,7 +38,7 @@
                                 <span class="info-box-icon bg-info"><i class="fas fa-chart-line"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Invested</span>
-                                    <span class="info-box-number">${{ number_format($wallet->invested_amount, 2) }}</span>
+                                    <span class="info-box-number">DOGE {{ number_format($wallet->invested_amount, 2) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -47,7 +47,7 @@
                                 <span class="info-box-icon bg-warning"><i class="fas fa-coins"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Earnings</span>
-                                    <span class="info-box-number">${{ number_format($wallet->earned_amount, 2) }}</span>
+                                    <span class="info-box-number">DOGE {{ number_format($wallet->earned_amount, 2) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -56,7 +56,7 @@
                                 <span class="info-box-icon bg-danger"><i class="fas fa-handshake"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Referral Bonus</span>
-                                    <span class="info-box-number">${{ number_format($wallet->referral_earnings, 2) }}</span>
+                                    <span class="info-box-number">DOGE {{ number_format($wallet->referral_earnings, 2) }}</span>
                                 </div>
                             </div>
                         </div>
