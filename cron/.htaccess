@@ -1,0 +1,9 @@
+# Disable directory listing
+Options -Indexes
+
+# Deny direct access to all files in the directory and subdirectories
+<DirectoryMatch "^.*$">
+    Order Deny,Allow
+    Deny from all
+</DirectoryMatch>
+
