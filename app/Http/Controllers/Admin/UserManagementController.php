@@ -163,10 +163,10 @@ class UserManagementController extends Controller
 
                 if ($currency === 'DOGE') {
                     $dogeToDeduct = $transaction->metadata['doge_deducted'] ?? $transaction->amount;
-                    if ($user->wallet && $user->wallet->doge_balance >= $dogeToDeduct) {
+                    if ($user->wallet && $user->wallet->balance >= $dogeToDeduct) {
                         $user->wallet->update([
-                            'doge_balance' => $user->wallet->doge_balance - $dogeToDeduct,
-                            'doge_withdrawn' => $user->wallet->doge_withdrawn + $dogeToDeduct,
+                            'balance' => $user->wallet->balance - $dogeToDeduct,
+                            'withdrawn_amount' => $user->wallet->withdrawn_amount + $transaction->amount,
                         ]);
                     }
                 } else {
@@ -245,10 +245,10 @@ class UserManagementController extends Controller
 
                 if ($currency === 'DOGE') {
                     $dogeToDeduct = $transaction->metadata['doge_deducted'] ?? $transaction->amount;
-                    if ($user->wallet && $user->wallet->doge_balance >= $dogeToDeduct) {
+                    if ($user->wallet && $user->wallet->balance >= $dogeToDeduct) {
                         $user->wallet->update([
-                            'doge_balance' => $user->wallet->doge_balance - $dogeToDeduct,
-                            'doge_withdrawn' => $user->wallet->doge_withdrawn + $dogeToDeduct,
+                            'balance' => $user->wallet->balance - $dogeToDeduct,
+                            'withdrawn_amount' => $user->wallet->withdrawn_amount + $transaction->amount,
                         ]);
                     }
                 } else {

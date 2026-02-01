@@ -87,8 +87,8 @@
                                 <span class="info-box-icon"><i class="fas fa-dog"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">DOGE Holding</span>
-                                    <span class="info-box-number">{{ number_format($wallet->doge_balance, 8) }} DOGE</span>
-                                    <span class="info-box-text">Withdrawn: {{ number_format($wallet->doge_withdrawn, 8) }} DOGE</span>
+                                    <span class="info-box-number">{{ number_format($wallet->balance, 2) }} DOGE</span>
+                                    <span class="info-box-text">Withdrawn: ${{ number_format($wallet->withdrawn_amount, 2) }} USDT</span>
                                 </div>
                             </div>
                         </div>
@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const dogeInfo = document.getElementById('dogeConversionInfo');
     const dogeCalc = document.getElementById('dogeCalc');
     const dogeRate = {{ $dogeRate }};
-    const dogeBalance = {{ $wallet->doge_balance }};
+    const dogeBalance = {{ $wallet->balance }};
     const dogeBalanceUsdt = {{ $dogeBalanceInUsdt }};
     const usdtBalance = {{ $wallet->balance }};
 

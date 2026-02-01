@@ -46,7 +46,7 @@ class WalletController extends Controller
 
         // Fetch DOGE/USDT rate (cached for 5 minutes)
         $dogeRate = self::getDogeRate();
-        $dogeBalanceInUsdt = $dogeRate > 0 ? round($wallet->doge_balance * $dogeRate, 2) : 0;
+        $dogeBalanceInUsdt = $dogeRate > 0 ? round($wallet->balance * $dogeRate, 2) : 0;
 
         return view('wallet.index', compact('wallet', 'withdrawalSettings', 'canWithdraw', 'pendingWithdrawals', 'dogeRate', 'dogeBalanceInUsdt'));
     }
@@ -154,8 +154,8 @@ class WalletController extends Controller
             // $amount is the USDT value the user wants to withdraw
             $dogeNeeded = round($amount / $dogeRate, 8);
 
-            if (!$wallet || $wallet->doge_balance < $dogeNeeded) {
-                return back()->with('error', 'Insufficient DOGE balance. You need ' . number_format($dogeNeeded, 8) . ' DOGE (you have ' . number_format($wallet->doge_balance, 8) . ')');
+            if (!$wallet || $wallet->balance < $dogeNeeded) {
+                return back()->with('error', 'Insufficient DOGE balance. You need ' . number_format($dogeNeeded, 8) . ' DOGE (you have ' . number_format($wallet->balance, 2) . ')');
             }
 
             // No fee for DOGE-sourced withdrawals, no min threshold check
@@ -183,8 +183,8 @@ class WalletController extends Controller
 
                 if ($autoApprove) {
                     $wallet->update([
-                        'doge_balance' => $wallet->doge_balance - $dogeNeeded,
-                        'doge_withdrawn' => $wallet->doge_withdrawn + $dogeNeeded,
+                        'balance' => $wallet->balance - $dogeNeeded,
+                        'withdrawn_amount' => $wallet->withdrawn_amount + $amount,
                     ]);
                 }
 
