@@ -139,13 +139,13 @@ class UserManagementController extends Controller
         }
     }
 
-    public function approveTransaction(Transaction $transaction)
+    public function approveTransaction(Request $request, Transaction $transaction)
     {
         if ($transaction->status !== 'pending') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Transaction is not pending approval'
-            ]);
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Transaction is not pending approval']);
+            }
+            return back()->with('error', 'Transaction is not pending approval');
         }
 
         DB::beginTransaction();
@@ -192,17 +192,17 @@ class UserManagementController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Transaction approved successfully'
-            ]);
+            if ($request->expectsJson()) {
+                return response()->json(['success' => true, 'message' => 'Transaction approved successfully']);
+            }
+            return back()->with('success', 'Transaction approved successfully');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to approve transaction: ' . $e->getMessage()
-            ]);
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Failed to approve transaction: ' . $e->getMessage()]);
+            }
+            return back()->with('error', 'Failed to approve transaction: ' . $e->getMessage());
         }
     }
 
@@ -287,10 +287,10 @@ class UserManagementController extends Controller
     public function rejectTransaction(Request $request, Transaction $transaction)
     {
         if ($transaction->status !== 'pending') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Transaction is not pending approval'
-            ]);
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Transaction is not pending approval']);
+            }
+            return back()->with('error', 'Transaction is not pending approval');
         }
 
         try {
@@ -312,16 +312,16 @@ class UserManagementController extends Controller
                 ])
                 ->log('Admin rejected transaction');
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Transaction rejected successfully'
-            ]);
+            if ($request->expectsJson()) {
+                return response()->json(['success' => true, 'message' => 'Transaction rejected successfully']);
+            }
+            return back()->with('success', 'Transaction rejected successfully');
 
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to reject transaction: ' . $e->getMessage()
-            ]);
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Failed to reject transaction: ' . $e->getMessage()]);
+            }
+            return back()->with('error', 'Failed to reject transaction: ' . $e->getMessage());
         }
     }
 
