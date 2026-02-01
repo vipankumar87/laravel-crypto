@@ -10,12 +10,17 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 dotenv.config({
-    path: path.resolve(__dirname, '..', '.env')
+    path: path.resolve(__dirname, '../','../web3-wallet-creation/' , '.env')
 });
 
-const PRIVATE_KEY = CryptoJS.AES.decrypt(process.env.PRIVATE_KEY, process.env.SECRET).toString(CryptoJS.enc.Utf8);
+// const PRIVATE_KEY = CryptoJS.AES.decrypt(process.env.PRIVATE_KEY, process.env.SECRET).toString(CryptoJS.enc.Utf8);
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const FROM_ADDRESS = process.env.FROM_ADDRESS;
 const USDT_CONTRACT = process.env.USDT_CONTRACT;
+
+console.log(`Using FROM_ADDRESS: ${FROM_ADDRESS}`);
+console.log(`Using USDT_CONTRACT: ${USDT_CONTRACT}`);
+
 const RPC_URL = "https://bsc-mainnet.public.blastapi.io";
 const BSC_SCAN_API_KEY = process.env.BSC_SCAN_API_KEY || "RCFWXA64ZZDFH8JT3CQN585V16RS9F6RKE";
 
