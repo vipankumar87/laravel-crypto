@@ -20,6 +20,7 @@ class Transaction extends Model
         'status',
         'description',
         'metadata',
+        'tx_hash',
         'processed_at',
     ];
 
