@@ -15,6 +15,25 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
+    <!-- Live Conversion Rate Banner -->
+    @if($dogeRate > 0)
+    <div class="callout callout-warning">
+        <div class="d-flex align-items-center justify-content-between">
+            <div>
+                <h5 class="mb-0"><i class="fas fa-exchange-alt mr-2"></i>DOGE / USDT Live Rate</h5>
+                <p class="mb-0 mt-1">
+                    <strong>1 DOGE = ${{ number_format($dogeRate, 6) }} USDT</strong>
+                    &nbsp;|&nbsp;
+                    <strong>1 USDT = {{ number_format(1 / $dogeRate, 4) }} DOGE</strong>
+                </p>
+            </div>
+            <div class="text-right">
+                <span class="text-muted"><i class="fas fa-clock"></i> Updates every 5 min</span>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <div class="row">
         <!-- Wallet Overview -->
         <div class="col-md-8">
@@ -61,15 +80,25 @@
                             </div>
                         </div>
                     </div>
-                    <!-- DOGE Balance -->
+                    <!-- DOGE Holding & USDT Value -->
                     <div class="row mt-2">
                         <div class="col-md-6">
                             <div class="info-box bg-gradient-warning">
                                 <span class="info-box-icon"><i class="fas fa-dog"></i></span>
                                 <div class="info-box-content">
-                                    <span class="info-box-text">DOGE Balance</span>
+                                    <span class="info-box-text">DOGE Holding</span>
                                     <span class="info-box-number">{{ number_format($wallet->doge_balance, 8) }} DOGE</span>
                                     <span class="info-box-text">Withdrawn: {{ number_format($wallet->doge_withdrawn, 8) }} DOGE</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-box bg-gradient-success">
+                                <span class="info-box-icon"><i class="fas fa-dollar-sign"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">DOGE Value in USDT</span>
+                                    <span class="info-box-number">${{ number_format($dogeBalanceInUsdt, 2) }}</span>
+                                    <span class="info-box-text">Withdrawable as USDT</span>
                                 </div>
                             </div>
                         </div>
@@ -82,7 +111,7 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Quick Actions</h3>
+                    <h3 class="card-title">Withdraw</h3>
                 </div>
                 <div class="card-body">
                     @can('manage wallets')
@@ -96,56 +125,70 @@
                             </div>
                         </form>
                     @else
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i> Only administrators can add funds to wallets. Contact admin for deposits.
+                        <div class="alert alert-info mb-2 py-2">
+                            <small><i class="fas fa-info-circle"></i> All withdrawals are paid out in <strong>USDT</strong> to your BEP-20 wallet address.</small>
                         </div>
                     @endcan
 
                     @cannot('manage wallets')
                         @if($pendingWithdrawals > 0)
-                            <div class="alert alert-warning">
+                            <div class="alert alert-warning py-2">
                                 <i class="fas fa-clock"></i> You have <strong>{{ $pendingWithdrawals }}</strong> pending withdrawal{{ $pendingWithdrawals > 1 ? 's' : '' }}.
                             </div>
                         @endif
 
                         @if(!$canWithdraw)
-                            <div class="alert alert-danger">
-                                <i class="fas fa-lock"></i> USDT withdrawals locked. You need at least <strong>${{ number_format($withdrawalSettings['min_usdt_threshold'], 2) }}</strong> in total earnings.
-                                <br>Current total earnings: <strong>${{ number_format($wallet->earned_amount + $wallet->referral_earnings, 2) }}</strong>
+                            <div class="alert alert-danger py-2">
+                                <i class="fas fa-lock"></i> Withdrawals locked. Need <strong>${{ number_format($withdrawalSettings['min_usdt_threshold'], 2) }}</strong> in earnings.
+                                <br>Current: <strong>${{ number_format($wallet->earned_amount + $wallet->referral_earnings, 2) }}</strong>
                             </div>
                         @endif
 
                         <form method="POST" action="{{ route('wallet.withdraw') }}">
                             @csrf
                             <div class="form-group">
-                                <label>Currency</label>
+                                <label>Withdraw From</label>
                                 <select name="currency" id="withdrawCurrency" class="form-control">
-                                    <option value="USDT" {{ !$canWithdraw ? 'disabled' : '' }}>USDT (Balance: ${{ number_format($wallet->balance, 2) }})</option>
-                                    <option value="DOGE" {{ $wallet->doge_balance <= 0 ? 'disabled' : '' }}>DOGE (Balance: {{ number_format($wallet->doge_balance, 8) }})</option>
+                                    <option value="USDT" {{ !$canWithdraw ? 'disabled' : '' }}>USDT Balance ({{ number_format($wallet->balance, 2) }} DOGE)</option>
+                                    <option value="DOGE" {{ $dogeBalanceInUsdt < 1 ? 'disabled' : '' }}>DOGE Holding (~${{ number_format($dogeBalanceInUsdt, 2) }} USDT)</option>
                                 </select>
                             </div>
+
+                            <div id="dogeConversionInfo" style="display: none;">
+                                <div class="alert alert-info py-2 mb-2">
+                                    <small>
+                                        <i class="fas fa-calculator mr-1"></i>
+                                        Enter the USDT amount you want. Equivalent DOGE will be deducted.<br>
+                                        <strong>1 DOGE = ${{ number_format($dogeRate, 6) }}</strong><br>
+                                        <span id="dogeCalc"></span>
+                                    </small>
+                                </div>
+                            </div>
+
                             <div class="input-group mb-2">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="currencySymbol">$</span>
+                                </div>
                                 <input type="number"
                                        name="amount"
                                        id="withdrawAmount"
                                        class="form-control"
-                                       placeholder="Withdraw Amount"
+                                       placeholder="Amount in USDT"
                                        step="0.01"
                                        min="1"
                                        max="{{ $wallet->balance }}"
                                        required>
                                 <div class="input-group-append">
-                                    <button type="submit" class="btn btn-warning">Request Withdrawal</button>
+                                    <button type="submit" class="btn btn-warning">Withdraw</button>
                                 </div>
                             </div>
                             <small class="text-muted">
-                                Max per withdrawal: ${{ number_format($withdrawalSettings['max_withdrawal_amount'], 2) }}
-                                | Withdrawal requests require admin approval
+                                Max: ${{ number_format($withdrawalSettings['max_withdrawal_amount'], 2) }} per withdrawal
                             </small>
                         </form>
                     @else
                         <div class="alert alert-warning">
-                            <i class="fas fa-tools"></i> As an administrator, use the <a href="{{ route('admin.users.index') }}">User Management</a> panel to handle withdrawals and deposits for users.
+                            <i class="fas fa-tools"></i> Use <a href="{{ route('admin.users.index') }}">User Management</a> to handle withdrawals.
                         </div>
                     @endcannot
                 </div>
@@ -180,20 +223,43 @@
 document.addEventListener('DOMContentLoaded', function() {
     const currencySelect = document.getElementById('withdrawCurrency');
     const amountInput = document.getElementById('withdrawAmount');
+    const dogeInfo = document.getElementById('dogeConversionInfo');
+    const dogeCalc = document.getElementById('dogeCalc');
+    const dogeRate = {{ $dogeRate }};
+    const dogeBalance = {{ $wallet->doge_balance }};
+    const dogeBalanceUsdt = {{ $dogeBalanceInUsdt }};
+    const usdtBalance = {{ $wallet->balance }};
 
-    if (currencySelect && amountInput) {
-        currencySelect.addEventListener('change', function() {
-            if (this.value === 'USDT') {
-                amountInput.max = {{ $wallet->balance }};
-                amountInput.step = '0.01';
-                amountInput.placeholder = 'Withdraw USDT Amount';
-            } else {
-                amountInput.max = {{ $wallet->doge_balance }};
-                amountInput.step = '0.00000001';
-                amountInput.placeholder = 'Withdraw DOGE Amount';
-            }
-            amountInput.value = '';
-        });
+    function updateForm() {
+        if (!currencySelect || !amountInput) return;
+
+        if (currencySelect.value === 'DOGE') {
+            amountInput.max = dogeBalanceUsdt;
+            if (dogeInfo) dogeInfo.style.display = 'block';
+            updateDogeCalc();
+        } else {
+            amountInput.max = usdtBalance;
+            if (dogeInfo) dogeInfo.style.display = 'none';
+        }
+        amountInput.value = '';
+    }
+
+    function updateDogeCalc() {
+        if (!dogeCalc) return;
+        const usdtAmount = parseFloat(amountInput.value) || 0;
+        if (usdtAmount > 0 && dogeRate > 0) {
+            const dogeNeeded = (usdtAmount / dogeRate).toFixed(8);
+            dogeCalc.innerHTML = '<strong>$' + usdtAmount.toFixed(2) + ' USDT = ' + dogeNeeded + ' DOGE</strong>';
+        } else {
+            dogeCalc.innerHTML = '';
+        }
+    }
+
+    if (currencySelect) {
+        currencySelect.addEventListener('change', updateForm);
+    }
+    if (amountInput) {
+        amountInput.addEventListener('input', updateDogeCalc);
     }
 });
 </script>

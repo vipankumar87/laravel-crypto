@@ -8,6 +8,8 @@ use App\Models\Transaction;
 use App\Models\WithdrawalSetting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 
 class WalletController extends Controller
 {
@@ -42,7 +44,11 @@ class WalletController extends Controller
             ->where('status', 'pending')
             ->count();
 
-        return view('wallet.index', compact('wallet', 'withdrawalSettings', 'canWithdraw', 'pendingWithdrawals'));
+        // Fetch DOGE/USDT rate (cached for 5 minutes)
+        $dogeRate = self::getDogeRate();
+        $dogeBalanceInUsdt = $dogeRate > 0 ? round($wallet->doge_balance * $dogeRate, 2) : 0;
+
+        return view('wallet.index', compact('wallet', 'withdrawalSettings', 'canWithdraw', 'pendingWithdrawals', 'dogeRate', 'dogeBalanceInUsdt'));
     }
 
     public function deposit(Request $request)
@@ -139,12 +145,20 @@ class WalletController extends Controller
             }
 
         } else {
-            // DOGE withdrawal checks
-            if (!$wallet || $wallet->doge_balance < $amount) {
-                return back()->with('error', 'Insufficient DOGE balance');
+            // DOGE → USDT withdrawal: user enters USDT amount, we deduct equivalent DOGE
+            $dogeRate = self::getDogeRate();
+            if ($dogeRate <= 0) {
+                return back()->with('error', 'Unable to fetch DOGE conversion rate. Please try again later.');
             }
 
-            // No fee for DOGE, no min threshold check
+            // $amount is the USDT value the user wants to withdraw
+            $dogeNeeded = round($amount / $dogeRate, 8);
+
+            if (!$wallet || $wallet->doge_balance < $dogeNeeded) {
+                return back()->with('error', 'Insufficient DOGE balance. You need ' . number_format($dogeNeeded, 8) . ' DOGE (you have ' . number_format($wallet->doge_balance, 8) . ')');
+            }
+
+            // No fee for DOGE-sourced withdrawals, no min threshold check
             $autoApprove = WithdrawalSetting::shouldAutoApprove($amount);
             $status = $autoApprove ? 'completed' : 'pending';
 
@@ -155,28 +169,32 @@ class WalletController extends Controller
                     'transaction_id' => 'WTH_' . uniqid(),
                     'type' => 'withdrawal',
                     'currency' => 'DOGE',
-                    'amount' => $amount,
+                    'amount' => $amount, // USDT value to send
                     'fee' => 0,
                     'net_amount' => $amount,
                     'status' => $status,
-                    'description' => 'DOGE withdrawal request',
+                    'description' => 'DOGE→USDT withdrawal (' . number_format($dogeNeeded, 8) . ' DOGE @ $' . number_format($dogeRate, 6) . ')',
+                    'metadata' => [
+                        'doge_deducted' => $dogeNeeded,
+                        'doge_rate' => $dogeRate,
+                    ],
                     'processed_at' => $autoApprove ? now() : null,
                 ]);
 
                 if ($autoApprove) {
                     $wallet->update([
-                        'doge_balance' => $wallet->doge_balance - $amount,
-                        'doge_withdrawn' => $wallet->doge_withdrawn + $amount,
+                        'doge_balance' => $wallet->doge_balance - $dogeNeeded,
+                        'doge_withdrawn' => $wallet->doge_withdrawn + $dogeNeeded,
                     ]);
                 }
 
                 DB::commit();
 
                 if ($autoApprove) {
-                    return back()->with('success', 'Withdrawal of ' . number_format($amount, 8) . ' DOGE approved automatically.');
+                    return back()->with('success', 'Withdrawal of $' . number_format($amount, 2) . ' USDT (' . number_format($dogeNeeded, 8) . ' DOGE) approved automatically.');
                 }
 
-                return back()->with('success', 'DOGE withdrawal request submitted for admin approval.');
+                return back()->with('success', 'Withdrawal request for $' . number_format($amount, 2) . ' USDT (' . number_format($dogeNeeded, 8) . ' DOGE) submitted for admin approval.');
 
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -192,5 +210,43 @@ class WalletController extends Controller
             ->paginate(20);
 
         return view('wallet.transactions', compact('transactions'));
+    }
+
+    /**
+     * Get current DOGE price in USDT, cached for 5 minutes.
+     */
+    public static function getDogeRate(): float
+    {
+        return Cache::remember('doge_usdt_rate', 300, function () {
+            try {
+                $response = Http::timeout(10)->get('https://api.coingecko.com/api/v3/simple/price', [
+                    'ids' => 'dogecoin',
+                    'vs_currencies' => 'usd',
+                ]);
+
+                if ($response->successful()) {
+                    $price = $response->json('dogecoin.usd');
+                    if ($price && $price > 0) {
+                        return (float) $price;
+                    }
+                }
+
+                // Fallback: Binance
+                $response = Http::timeout(10)->get('https://api.binance.com/api/v3/ticker/price', [
+                    'symbol' => 'DOGEUSDT',
+                ]);
+
+                if ($response->successful()) {
+                    $price = $response->json('price');
+                    if ($price && $price > 0) {
+                        return (float) $price;
+                    }
+                }
+            } catch (\Exception $e) {
+                \Log::warning('Failed to fetch DOGE rate: ' . $e->getMessage());
+            }
+
+            return (float) env('DOGE_USD_FALLBACK_RATE', 0.08);
+        });
     }
 }

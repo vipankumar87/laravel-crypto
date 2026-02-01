@@ -162,10 +162,11 @@ class UserManagementController extends Controller
                 $currency = $transaction->currency ?? 'USDT';
 
                 if ($currency === 'DOGE') {
-                    if ($user->wallet && $user->wallet->doge_balance >= $transaction->amount) {
+                    $dogeToDeduct = $transaction->metadata['doge_deducted'] ?? $transaction->amount;
+                    if ($user->wallet && $user->wallet->doge_balance >= $dogeToDeduct) {
                         $user->wallet->update([
-                            'doge_balance' => $user->wallet->doge_balance - $transaction->amount,
-                            'doge_withdrawn' => $user->wallet->doge_withdrawn + $transaction->amount,
+                            'doge_balance' => $user->wallet->doge_balance - $dogeToDeduct,
+                            'doge_withdrawn' => $user->wallet->doge_withdrawn + $dogeToDeduct,
                         ]);
                     }
                 } else {
@@ -243,10 +244,11 @@ class UserManagementController extends Controller
                 $currency = $transaction->currency ?? 'USDT';
 
                 if ($currency === 'DOGE') {
-                    if ($user->wallet && $user->wallet->doge_balance >= $transaction->amount) {
+                    $dogeToDeduct = $transaction->metadata['doge_deducted'] ?? $transaction->amount;
+                    if ($user->wallet && $user->wallet->doge_balance >= $dogeToDeduct) {
                         $user->wallet->update([
-                            'doge_balance' => $user->wallet->doge_balance - $transaction->amount,
-                            'doge_withdrawn' => $user->wallet->doge_withdrawn + $transaction->amount,
+                            'doge_balance' => $user->wallet->doge_balance - $dogeToDeduct,
+                            'doge_withdrawn' => $user->wallet->doge_withdrawn + $dogeToDeduct,
                         ]);
                     }
                 } else {
