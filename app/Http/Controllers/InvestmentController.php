@@ -114,7 +114,7 @@ class InvestmentController extends Controller
 
         try {
             // Deduct full amount from wallet (including fees)
-            $user->wallet->deductBalance($amount, 'Investment in ' . $plan->name . ' ($' . number_format($netAmount, 2) . ' + Fees: $' . number_format($totalFees, 2) . ')');
+            $user->wallet->deductBalance($amount, 'Investment in ' . $plan->name . ' ($' . number_format($netAmount, 2) . ' + Fees: $' . number_format($totalFees, 2) . ')', 'investment');
 
             // Create investment with net amount
             $expectedReturn = ($netAmount * $plan->total_return_rate / 100);

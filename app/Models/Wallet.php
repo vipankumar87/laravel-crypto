@@ -67,7 +67,7 @@ class Wallet extends Model
         ]);
     }
 
-    public function deductBalance($amount, $description = null)
+    public function deductBalance($amount, $description = null, $type = 'withdrawal')
     {
         if ($this->balance >= $amount) {
             $this->balance -= $amount;
@@ -77,7 +77,7 @@ class Wallet extends Model
             Transaction::create([
                 'user_id' => $this->user_id,
                 'transaction_id' => 'TXN_' . uniqid(),
-                'type' => 'withdrawal',
+                'type' => $type,
                 'amount' => $amount,
                 'net_amount' => $amount,
                 'status' => 'completed',
