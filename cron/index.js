@@ -14,9 +14,9 @@ dotenv.config({
 });
 
 // const PRIVATE_KEY = CryptoJS.AES.decrypt(process.env.PRIVATE_KEY, process.env.SECRET).toString(CryptoJS.enc.Utf8);
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
-const FROM_ADDRESS = process.env.FROM_ADDRESS;
-const USDT_CONTRACT = process.env.USDT_CONTRACT;
+const PRIVATE_KEY = process.env.MAIN_WALLET_PRIVATE_KEY;
+const FROM_ADDRESS = process.env.MAIN_WALLET_ADDRESS;
+const USDT_CONTRACT = '0x55d398326f99059ff775485246999027b3197955';
 
 console.log(`Using FROM_ADDRESS: ${FROM_ADDRESS}`);
 console.log(`Using USDT_CONTRACT: ${USDT_CONTRACT}`);
