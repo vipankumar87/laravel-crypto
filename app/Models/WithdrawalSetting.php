@@ -37,6 +37,7 @@ class WithdrawalSetting extends Model
         'withdrawal_fee_type',
         'doge_bonus_threshold',
         'doge_bonus_amount',
+        'earning_frequency',
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -114,6 +115,43 @@ class WithdrawalSetting extends Model
     public static function getDogeBonusThreshold(): float
     {
         return (float) self::getValue('doge_bonus_threshold', 1000);
+    }
+
+    public static function getEarningFrequency(): string
+    {
+        return (string) self::getValue('earning_frequency', 'daily');
+    }
+
+    public static function getIntervalsPerDay(): int
+    {
+        $map = [
+            'daily' => 1,
+            'twice_daily' => 2,
+            'every_5_hours' => 5,
+            'hourly' => 24,
+            'every_30_min' => 48,
+            'every_15_min' => 96,
+            'every_5_min' => 288,
+            'every_minute' => 1440,
+        ];
+
+        return $map[self::getEarningFrequency()] ?? 1;
+    }
+
+    public static function getIntervalMinutes(): int
+    {
+        $map = [
+            'daily' => 1440,
+            'twice_daily' => 720,
+            'every_5_hours' => 300,
+            'hourly' => 60,
+            'every_30_min' => 30,
+            'every_15_min' => 15,
+            'every_5_min' => 5,
+            'every_minute' => 1,
+        ];
+
+        return $map[self::getEarningFrequency()] ?? 1440;
     }
 
     public static function getDogeBonusAmount(): float

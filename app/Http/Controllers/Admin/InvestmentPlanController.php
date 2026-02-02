@@ -40,6 +40,7 @@ class InvestmentPlanController extends Controller
             'duration_days' => 'required|integer|min:1',
             'max_investors' => 'nullable|integer|min:1',
             'status' => 'required|in:active,inactive',
+            'monthly_bonus_rate' => 'nullable|numeric|min:0|max:100',
         ]);
 
         if ($validator->fails()) {
@@ -59,7 +60,8 @@ class InvestmentPlanController extends Controller
             'daily_return_rate' => $request->daily_return_rate,
             'duration_days' => $request->duration_days,
             'total_return_rate' => $totalReturnRate,
-            'referral_bonus_rate' => 0, // Referral bonuses are now configured globally
+            'referral_bonus_rate' => 0,
+            'monthly_bonus_rate' => $request->monthly_bonus_rate ?? 0,
             'max_investors' => $request->max_investors,
             'status' => $request->status,
         ]);
@@ -118,6 +120,7 @@ class InvestmentPlanController extends Controller
             'duration_days' => 'required|integer|min:1',
             'max_investors' => 'nullable|integer|min:1',
             'status' => 'required|in:active,inactive',
+            'monthly_bonus_rate' => 'nullable|numeric|min:0|max:100',
         ]);
 
         if ($validator->fails()) {
@@ -137,6 +140,7 @@ class InvestmentPlanController extends Controller
             'daily_return_rate' => $request->daily_return_rate,
             'duration_days' => $request->duration_days,
             'total_return_rate' => $totalReturnRate,
+            'monthly_bonus_rate' => $request->monthly_bonus_rate ?? 0,
             'max_investors' => $request->max_investors,
             'status' => $request->status,
         ]);

@@ -20,6 +20,7 @@ class InvestmentPlan extends Model
         'status',
         'max_investors',
         'referral_bonus_rate',
+        'monthly_bonus_rate',
     ];
 
     protected $casts = [
@@ -28,6 +29,7 @@ class InvestmentPlan extends Model
         'daily_return_rate' => 'decimal:2',
         'total_return_rate' => 'decimal:2',
         'referral_bonus_rate' => 'decimal:2',
+        'monthly_bonus_rate' => 'decimal:2',
         'duration_days' => 'integer',
         'max_investors' => 'integer',
     ];

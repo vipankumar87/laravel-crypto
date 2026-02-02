@@ -57,6 +57,29 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Calculate per-second earning rate for live ticker
+        $activeInvestmentModels = $user->investments()->where('status', 'active')
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->get();
+
+        $perSecondRate = $activeInvestmentModels->sum(function ($inv) {
+            return $inv->calculateDailyEarning() / 86400;
+        });
+
+        $lastEarningTimestamp = $activeInvestmentModels->max('last_earning_date');
+
+        // Calculate monthly projected with bonus
+        $monthlyProjected = $activeInvestmentModels->sum(function ($inv) {
+            $daily = $inv->calculateDailyEarning();
+            $monthly = $daily * 30;
+            $plan = $inv->investmentPlan;
+            if ($plan && $plan->monthly_bonus_rate > 0) {
+                $monthly += $monthly * ($plan->monthly_bonus_rate / 100);
+            }
+            return $monthly;
+        });
+
         // Get analytics data - always include earnings breakdown
         $analytics = null;
         if ($activeInvestments > 0) {
@@ -77,7 +100,10 @@ class DashboardController extends Controller
             'totalEarnings',
             'referralCount',
             'recentTransactions',
-            'analytics'
+            'analytics',
+            'perSecondRate',
+            'lastEarningTimestamp',
+            'monthlyProjected'
         ));
     }
 

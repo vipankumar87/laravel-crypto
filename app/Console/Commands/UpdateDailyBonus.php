@@ -5,12 +5,14 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Investment;
 use App\Models\Wallet;
+use App\Models\WithdrawalSetting;
 use App\Models\ReferralBonus;
 use App\Models\ReferralLevelSetting;
 use App\Models\User;
 use App\Models\DailyBonusLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class UpdateDailyBonus extends Command
 {
@@ -33,22 +35,31 @@ class UpdateDailyBonus extends Command
      */
     public function handle()
     {
-        $this->info('Starting daily bonus update process...');
-        
+        $this->info('Starting earning update process...');
+
         // Show history if requested
         if ($this->option('history')) {
             $this->showProcessingHistory();
             return 0;
         }
-        
+
         $today = now()->format('Y-m-d');
         $force = $this->option('force');
-        
-        // Check if already processed today (unless force option is used)
-        if (!$force && DailyBonusLog::hasBeenProcessed($today)) {
-            $this->info('Daily bonuses have already been processed today. Use --force to override.');
-            $this->info('Use --history to see recent processing history.');
-            return 0;
+
+        // Get earning frequency settings
+        $intervalMinutes = WithdrawalSetting::getIntervalMinutes();
+        $intervalsPerDay = WithdrawalSetting::getIntervalsPerDay();
+
+        // Check if enough time has passed since last run (unless force)
+        if (!$force) {
+            $lastLog = DailyBonusLog::where('process_date', $today)->orderBy('processed_at', 'desc')->first();
+            if ($lastLog && $lastLog->processed_at) {
+                $minutesSinceLast = Carbon::parse($lastLog->processed_at)->diffInMinutes(now());
+                if ($minutesSinceLast < $intervalMinutes) {
+                    $this->info("Not enough time passed since last run ({$minutesSinceLast}m < {$intervalMinutes}m). Use --force to override.");
+                    return 0;
+                }
+            }
         }
         
         $totalSelfEarnings = 0;
@@ -80,8 +91,9 @@ class UpdateDailyBonus extends Command
                 );
             });
             
-            $this->info('Daily bonus update completed successfully!');
+            $this->info('Earning update completed successfully!');
             $this->info("Date: {$today}");
+            $this->info("Frequency: " . WithdrawalSetting::getEarningFrequency() . " ({$intervalsPerDay} intervals/day)");
             $this->info("Processed Investments: {$processedInvestments}");
             $this->info("Total Self Earnings: {$totalSelfEarnings}");
             $this->info("Total Referral Earnings: {$totalReferralEarnings}");
@@ -263,29 +275,29 @@ class UpdateDailyBonus extends Command
     private function processSelfEarnings(&$totalSelfEarnings, &$processedInvestments)
     {
         $this->info('Processing self (direct) earnings...');
-        
-        $today = now()->format('Y-m-d');
-        
-        // Get active investments that haven't been processed today
-        // Using a more robust query to prevent race conditions
+
+        $intervalMinutes = WithdrawalSetting::getIntervalMinutes();
+        $intervalsPerDay = WithdrawalSetting::getIntervalsPerDay();
+
+        // Get active investments that haven't been processed within the interval
         $activeInvestments = Investment::where('status', 'active')
             ->where('start_date', '<=', now())
             ->where('end_date', '>=', now())
-            ->where(function($query) use ($today) {
+            ->where(function($query) use ($intervalMinutes) {
                 $query->whereNull('last_earning_date')
-                      ->orWhereDate('last_earning_date', '<', $today);
+                      ->orWhere('last_earning_date', '<', now()->subMinutes($intervalMinutes));
             })
-            ->lockForUpdate() // Prevent race conditions
+            ->lockForUpdate()
             ->get();
-            
+
         foreach ($activeInvestments as $investment) {
-            // Double-check that this investment hasn't been processed today
-            if ($investment->last_earning_date && $investment->last_earning_date->format('Y-m-d') === $today) {
-                $this->line("Skipping investment #{$investment->id} - already processed today");
+            // Double-check interval hasn't elapsed
+            if ($investment->last_earning_date && $investment->last_earning_date->diffInMinutes(now()) < $intervalMinutes) {
+                $this->line("Skipping investment #{$investment->id} - interval not elapsed");
                 continue;
             }
-            
-            $dailyEarning = $investment->calculateDailyEarning();
+
+            $dailyEarning = $investment->calculateEarningForInterval($intervalsPerDay);
             
             if ($dailyEarning > 0) {
                 // Update investment earned amount and last earning date
@@ -368,7 +380,7 @@ class UpdateDailyBonus extends Command
             'amount' => $amount,
             'net_amount' => $amount,
             'status' => 'completed',
-            'description' => "Daily earning from investment",
+            'description' => "Earning from investment",
             'processed_at' => now(),
         ]);
         

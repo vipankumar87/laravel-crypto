@@ -118,6 +118,18 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
+                            <label for="monthly_bonus_rate">Monthly Bonus Rate (%)</label>
+                            <input type="number" class="form-control @error('monthly_bonus_rate') is-invalid @enderror"
+                                   id="monthly_bonus_rate" name="monthly_bonus_rate" value="{{ old('monthly_bonus_rate', $plan->monthly_bonus_rate ?? 0) }}"
+                                   step="0.01" min="0" max="100">
+                            <small class="text-muted">Percentage of monthly earnings given as bonus on 1st of each month</small>
+                            @error('monthly_bonus_rate')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
                             <label for="max_investors">Max Investors (0 = unlimited)</label>
                             <input type="number" class="form-control @error('max_investors') is-invalid @enderror"
                                    id="max_investors" name="max_investors" value="{{ old('max_investors', $plan->max_investors ?? 0) }}"

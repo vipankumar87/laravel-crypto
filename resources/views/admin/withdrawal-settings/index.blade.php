@@ -115,7 +115,19 @@
                                         <small class="text-muted">{{ $setting->name }}</small>
                                     </td>
                                     <td>
-                                        @if($setting->type === 'boolean')
+                                        @if($setting->name === 'earning_frequency')
+                                            <select class="form-control"
+                                                    name="settings[{{ $loop->index }}][value]">
+                                                <option value="daily" {{ $setting->value === 'daily' ? 'selected' : '' }}>Once a day</option>
+                                                <option value="twice_daily" {{ $setting->value === 'twice_daily' ? 'selected' : '' }}>Twice a day</option>
+                                                <option value="every_5_hours" {{ $setting->value === 'every_5_hours' ? 'selected' : '' }}>Every 5 hours</option>
+                                                <option value="hourly" {{ $setting->value === 'hourly' ? 'selected' : '' }}>Every hour</option>
+                                                <option value="every_30_min" {{ $setting->value === 'every_30_min' ? 'selected' : '' }}>Every 30 min</option>
+                                                <option value="every_15_min" {{ $setting->value === 'every_15_min' ? 'selected' : '' }}>Every 15 min</option>
+                                                <option value="every_5_min" {{ $setting->value === 'every_5_min' ? 'selected' : '' }}>Every 5 min</option>
+                                                <option value="every_minute" {{ $setting->value === 'every_minute' ? 'selected' : '' }}>Every minute</option>
+                                            </select>
+                                        @elseif($setting->type === 'boolean')
                                             <select class="form-control"
                                                     name="settings[{{ $loop->index }}][value]">
                                                 <option value="0" {{ $setting->value == '0' ? 'selected' : '' }}>No / Disabled</option>

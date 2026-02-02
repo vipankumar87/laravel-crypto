@@ -33,12 +33,23 @@ return Application::configure(basePath: dirname(__DIR__))
 	        true
 	    );
 
-	// Update daily bonuses for earning wallets
+	// Update earnings based on configured frequency
 	$schedule->command('app:update-daily-bonus')
-	    ->dailyAt('00:01')
+	    ->everyMinute()
+	    ->withoutOverlapping()
 	    ->runInBackground()
 	    ->appendOutputTo(
 	        storage_path('logs/update-daily-bonus.log'),
+	        true
+	    );
+
+	// Process monthly bonuses on 1st of each month
+	$schedule->command('app:process-monthly-bonus')
+	    ->monthlyOn(1, '00:10')
+	    ->withoutOverlapping()
+	    ->runInBackground()
+	    ->appendOutputTo(
+	        storage_path('logs/process-monthly-bonus.log'),
 	        true
 	    );
 

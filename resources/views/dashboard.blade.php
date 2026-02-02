@@ -62,6 +62,60 @@
                         </div>
                     </div>
 
+                    <!-- Live Earnings Ticker -->
+                    @if(($perSecondRate ?? 0) > 0)
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card card-outline card-warning">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-bolt"></i> Live Earnings
+                                    </h3>
+                                    <div class="card-tools">
+                                        <span class="badge badge-success" id="ticker-status">LIVE</span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-md-3">
+                                            <div class="description-block border-right">
+                                                <span class="description-text text-muted">EARNING PER SECOND</span>
+                                                <h5 class="description-header text-success" id="per-second-rate">
+                                                    {{ number_format($perSecondRate, 8) }} DOGE/sec
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="description-block border-right">
+                                                <span class="description-text text-muted">LIVE BALANCE</span>
+                                                <h5 class="description-header text-primary" id="live-balance">
+                                                    {{ number_format($wallet->earned_amount ?? 0, 8) }} DOGE
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="description-block border-right">
+                                                <span class="description-text text-muted">TODAY'S PROJECTED</span>
+                                                <h5 class="description-header text-info" id="daily-projected">
+                                                    {{ number_format(($perSecondRate ?? 0) * 86400, 8) }} DOGE
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="description-block">
+                                                <span class="description-text text-muted">MONTHLY PROJECTED</span>
+                                                <h5 class="description-header text-warning" id="monthly-projected">
+                                                    {{ number_format($monthlyProjected ?? 0, 8) }} DOGE
+                                                </h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                     <!-- Earnings Breakdown Section -->
                     @if($analytics && isset($analytics['earnings_breakdown']))
                     <div class="row">
@@ -601,6 +655,47 @@ function investFromWallet() {
         window.location.href = `{{ route('investments.plans') }}?amount=${investmentAmount}&source=wallet`;
     }
 }
+
+// Live Earnings Ticker
+@if(($perSecondRate ?? 0) > 0)
+(function() {
+    const perSecondRate = {{ $perSecondRate }};
+    let liveBalance = {{ $wallet->earned_amount ?? 0 }};
+    const liveBalanceEl = document.getElementById('live-balance');
+    let tickerInterval;
+
+    function formatDoge(val) {
+        return val.toFixed(8) + ' DOGE';
+    }
+
+    function tick() {
+        liveBalance += perSecondRate;
+        if (liveBalanceEl) {
+            liveBalanceEl.textContent = formatDoge(liveBalance);
+        }
+    }
+
+    tickerInterval = setInterval(tick, 1000);
+
+    // Sync with server every 30 seconds via existing analytics call
+    setInterval(function() {
+        fetch('{{ route("analytics.get") }}', {
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success && data.data && data.data.wallet) {
+                liveBalance = parseFloat(data.data.wallet.earned_amount) || liveBalance;
+            }
+        })
+        .catch(() => {});
+    }, 30000);
+
+    window.addEventListener('beforeunload', function() {
+        clearInterval(tickerInterval);
+    });
+})();
+@endif
 
 @if($analytics)
 // Analytics Charts and Real-time Updates

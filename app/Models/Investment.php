@@ -29,6 +29,8 @@ class Investment extends Model
         'start_date',
         'end_date',
         'last_earning_date',
+        'monthly_bonus_earned',
+        'last_monthly_bonus_date',
     ];
 
     protected $casts = [
@@ -46,6 +48,8 @@ class Investment extends Model
         'start_date' => 'datetime',
         'end_date' => 'datetime',
         'last_earning_date' => 'datetime',
+        'monthly_bonus_earned' => 'decimal:2',
+        'last_monthly_bonus_date' => 'date',
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -88,5 +92,14 @@ class Investment extends Model
         return $this->isActive() &&
                ($this->last_earning_date === null ||
                 $this->last_earning_date < now()->startOfDay());
+    }
+
+    public function calculateEarningForInterval(int $intervalsPerDay)
+    {
+        $dailyEarning = $this->calculateDailyEarning();
+        if ($intervalsPerDay <= 0) {
+            $intervalsPerDay = 1;
+        }
+        return $dailyEarning / $intervalsPerDay;
     }
 }

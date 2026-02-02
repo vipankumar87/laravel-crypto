@@ -69,6 +69,13 @@ class WithdrawalSettingSeeder extends Seeder
                 'type' => 'number',
                 'description' => 'Amount of DOGE awarded as bonus (one-time)',
             ],
+            [
+                'name' => 'earning_frequency',
+                'label' => 'Earning Frequency',
+                'value' => 'daily',
+                'type' => 'string',
+                'description' => 'How often earnings are credited: daily, twice_daily, every_5_hours, hourly, every_30_min, every_15_min, every_5_min, every_minute',
+            ],
         ];
 
         foreach ($settings as $setting) {

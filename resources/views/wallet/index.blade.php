@@ -127,6 +127,8 @@
                     @else
                         <div class="alert alert-info mb-2 py-2">
                             <small><i class="fas fa-info-circle"></i> All withdrawals are paid out in <strong>USDT</strong> to your BEP-20 wallet address.</small>
+                            <br>
+                            <small><i class="fas fa-hourglass-half"></i> Withdrawal requests typically take <strong>2 to 24 hours</strong> to be approved and processed.</small>
                         </div>
                     @endcan
 

@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import CryptoJS from 'crypto-js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -75,6 +76,19 @@ async function sendUSDT(toAddress, amount_transfer, txId) {
         console.error(`Error sending USDT for txn #${txId}:`, error.message);
         return false;
     }
+}
+
+// Run Laravel scheduler
+const laravelPath = path.resolve(__dirname, '..');
+try {
+    console.log('Running Laravel scheduler...');
+    const output = execSync(`php ${laravelPath}/artisan schedule:run 2>&1`, {
+        cwd: laravelPath,
+        timeout: 120000,
+    }).toString();
+    console.log('Scheduler output:', output);
+} catch (err) {
+    console.error('Laravel scheduler error:', err.message);
 }
 
 // Main execution
