@@ -51,16 +51,17 @@ class UpdateDailyBonus extends Command
         $intervalsPerDay = WithdrawalSetting::getIntervalsPerDay();
 
         // Check if enough time has passed since last run (unless force)
-        if (!$force) {
-            $lastLog = DailyBonusLog::where('process_date', $today)->orderBy('processed_at', 'desc')->first();
-            if ($lastLog && $lastLog->processed_at) {
-                $minutesSinceLast = Carbon::parse($lastLog->processed_at)->diffInMinutes(now());
-                if ($minutesSinceLast < $intervalMinutes) {
-                    $this->info("Not enough time passed since last run ({$minutesSinceLast}m < {$intervalMinutes}m). Use --force to override.");
-                    return 0;
-                }
-            }
-        }
+        // COMMENTED OUT: This check causes timing edge cases when cron runs at midnight
+        // if (!$force) {
+        //     $lastLog = DailyBonusLog::where('process_date', $today)->orderBy('processed_at', 'desc')->first();
+        //     if ($lastLog && $lastLog->processed_at) {
+        //         $minutesSinceLast = Carbon::parse($lastLog->processed_at)->diffInMinutes(now());
+        //         if ($minutesSinceLast < $intervalMinutes) {
+        //             $this->info("Not enough time passed since last run ({$minutesSinceLast}m < {$intervalMinutes}m). Use --force to override.");
+        //             return 0;
+        //         }
+        //     }
+        // }
         
         $totalSelfEarnings = 0;
         $totalReferralEarnings = 0;
