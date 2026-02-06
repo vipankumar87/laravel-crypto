@@ -277,82 +277,85 @@ class UpdateDailyBonus extends Command
     {
         $this->info('Processing self (direct) earnings...');
 
-        $intervalMinutes = WithdrawalSetting::getIntervalMinutes();
         $intervalsPerDay = WithdrawalSetting::getIntervalsPerDay();
+        $today = now()->format('Y-m-d');
 
-        // Get active investments that haven't been processed today
-        // For daily frequency, check if last_earning_date is before today (not 24 hours ago)
-        $today = now()->startOfDay();
+        // Get all active investments - duplicate check handled in createEarningTransaction
         $activeInvestments = Investment::where('status', 'active')
             ->where('start_date', '<=', now())
             ->where('end_date', '>=', now())
-            ->where(function($query) use ($today) {
-                $query->whereNull('last_earning_date')
-                      ->orWhere('last_earning_date', '<', $today);
-            })
             ->lockForUpdate()
             ->get();
 
         foreach ($activeInvestments as $investment) {
-            // Double-check: skip if already processed today
-            if ($investment->last_earning_date && $investment->last_earning_date->isToday()) {
+            // Check if already processed today via transaction record
+            $existingTransaction = \App\Models\Transaction::where('user_id', $investment->user_id)
+                ->where('type', 'earning')
+                ->where('description', 'like', "%#{$investment->id}")
+                ->whereDate('created_at', $today)
+                ->first();
+
+            if ($existingTransaction) {
                 $this->line("Skipping investment #{$investment->id} - already processed today");
                 continue;
             }
 
             $dailyEarning = $investment->calculateEarningForInterval($intervalsPerDay);
-            
+
             if ($dailyEarning > 0) {
                 // Update investment earned amount and last earning date
                 $investment->earned_amount += $dailyEarning;
                 $investment->last_earning_date = now();
                 $investment->save();
-                
+
                 // Update wallet earned amount with optimistic locking
                 $wallet = Wallet::where('user_id', $investment->user_id)
                     ->lockForUpdate()
                     ->first();
-                    
+
                 if ($wallet) {
                     $wallet->earned_amount += $dailyEarning;
                     $wallet->balance += $dailyEarning;
                     $wallet->save();
-                    
+
                     // Create transaction record for the earning
                     $this->createEarningTransaction($investment->user_id, $dailyEarning, 'earning', $investment);
                 } else {
                     $this->error("Wallet not found for user {$investment->user_id}");
                     continue;
                 }
-                
+
                 $totalSelfEarnings += $dailyEarning;
                 $processedInvestments++;
-                
+
                 $this->line("Processed investment #{$investment->id}: {$dailyEarning} for user {$investment->user_id}");
             } else {
-                // Still update last_earning_date to prevent reprocessing zero-earnings investments
-                $investment->last_earning_date = now();
-                $investment->save();
-                
                 $this->line("Investment #{$investment->id} has zero earnings for today");
             }
         }
-        
+
         $this->info("Self earnings processed: {$processedInvestments} investments");
     }
     
     /**
-     * Process referral earnings (this handles ongoing referral bonuses if needed)
+     * Process referral earnings by calling distribute-referral-bonus command
      */
     private function processReferralEarnings(&$totalReferralEarnings)
     {
         $this->info('Processing referral earnings...');
-        
-        // Note: Referral bonuses are typically processed when new investments are made
-        // This method can be used for any ongoing referral earning logic
-        
-        // For now, we'll just log that referral earnings are handled at investment time
-        $this->info('Referral earnings are processed at investment time. No additional processing needed.');
+
+        // Call the distribute-referral-bonus command
+        $exitCode = \Illuminate\Support\Facades\Artisan::call('app:distribute-referral-bonus');
+        $output = \Illuminate\Support\Facades\Artisan::output();
+
+        $this->line($output);
+
+        // Try to extract total amount from output
+        if (preg_match('/Total Amount\s*\|\s*([\d,\.]+)/', $output, $matches)) {
+            $totalReferralEarnings = (float) str_replace(',', '', $matches[1]);
+        }
+
+        $this->info('Referral earnings processing completed.');
     }
     
     /**
