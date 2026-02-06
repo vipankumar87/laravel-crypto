@@ -280,21 +280,23 @@ class UpdateDailyBonus extends Command
         $intervalMinutes = WithdrawalSetting::getIntervalMinutes();
         $intervalsPerDay = WithdrawalSetting::getIntervalsPerDay();
 
-        // Get active investments that haven't been processed within the interval
+        // Get active investments that haven't been processed today
+        // For daily frequency, check if last_earning_date is before today (not 24 hours ago)
+        $today = now()->startOfDay();
         $activeInvestments = Investment::where('status', 'active')
             ->where('start_date', '<=', now())
             ->where('end_date', '>=', now())
-            ->where(function($query) use ($intervalMinutes) {
+            ->where(function($query) use ($today) {
                 $query->whereNull('last_earning_date')
-                      ->orWhere('last_earning_date', '<', now()->subMinutes($intervalMinutes));
+                      ->orWhere('last_earning_date', '<', $today);
             })
             ->lockForUpdate()
             ->get();
 
         foreach ($activeInvestments as $investment) {
-            // Double-check interval hasn't elapsed
-            if ($investment->last_earning_date && $investment->last_earning_date->diffInMinutes(now()) < $intervalMinutes) {
-                $this->line("Skipping investment #{$investment->id} - interval not elapsed");
+            // Double-check: skip if already processed today
+            if ($investment->last_earning_date && $investment->last_earning_date->isToday()) {
+                $this->line("Skipping investment #{$investment->id} - already processed today");
                 continue;
             }
 
