@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withSchedule(function (Schedule $schedule) {
         // Process new transactions and create investments automatically
+/*
 	// Process new transactions and create investments automatically
 	$schedule->command('app:auto-adjust-real-time-payment-to-investors')
 	    ->everyFiveMinutes()
@@ -62,6 +63,7 @@ return Application::configure(basePath: dirname(__DIR__))
 	        storage_path('logs/distribute-referral-bonus.log'),
 	        true
 	    );
+*/
     })
     ->withMiddleware(function (Middleware $middleware): void {
         // Register Spatie Permission middleware
