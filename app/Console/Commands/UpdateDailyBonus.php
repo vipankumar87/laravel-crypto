@@ -350,8 +350,10 @@ class UpdateDailyBonus extends Command
 
         $this->line($output);
 
-        // Try to extract total amount from output
-        if (preg_match('/Total Amount\s*\|\s*([\d,\.]+)/', $output, $matches)) {
+        // Try to extract total amount from output (handles "| Total Amount | 8.65 DOGE |" format)
+        if (preg_match('/Total Amount\s+\|\s+([\d,\.]+)\s+DOGE/', $output, $matches)) {
+            $totalReferralEarnings = (float) str_replace(',', '', $matches[1]);
+        } elseif (preg_match('/Total Amount\s+\|\s+([\d,\.]+)/', $output, $matches)) {
             $totalReferralEarnings = (float) str_replace(',', '', $matches[1]);
         }
 
