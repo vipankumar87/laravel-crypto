@@ -211,16 +211,20 @@ class DistributeReferralBonus extends Command
 
             $bonusAmount = ($investment->amount * $bonusPercentage) / 100;
 
-            // Check if this specific bonus already exists (for force mode)
-            if ($force) {
-                $existingBonus = ReferralBonus::where('investment_id', $investment->id)
-                    ->where('referrer_id', $referrer->id)
-                    ->where('level', $level)
-                    ->first();
+            // Check if this specific bonus already exists (skip if it exists and not forcing)
+            $existingBonus = ReferralBonus::where('investment_id', $investment->id)
+                ->where('referrer_id', $referrer->id)
+                ->where('level', $level)
+                ->first();
 
-                if ($existingBonus) {
+            if ($existingBonus) {
+                if (!$force) {
                     $this->line("  Level {$level}: Bonus already exists for {$referrer->username} - skipping");
                     continue;
+                } else {
+                    // Delete existing bonus to allow reprocessing in force mode
+                    $existingBonus->delete();
+                    $this->line("  Level {$level}: Deleted existing bonus for {$referrer->username}, reprocessing...");
                 }
             }
 
