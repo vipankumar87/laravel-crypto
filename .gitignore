@@ -23,3 +23,6 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /storage/logs/*.txt
+error_log
+/error_log
+/public/error_log
