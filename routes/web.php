@@ -125,6 +125,7 @@ Route::middleware(['auth', 'verified', 'ensure.user.role'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/wallet', [ProfileController::class, 'updateWallet'])->name('profile.update-wallet');
+    Route::delete('/profile/wallet-request', [ProfileController::class, 'cancelWalletRequest'])->name('profile.cancel-wallet-request');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
@@ -177,6 +178,11 @@ Route::middleware(['auth', 'ensure.admin.role'])->prefix('admin')->name('admin.'
 
     // Investment Management
     Route::get('/investments', [App\Http\Controllers\Admin\AdminController::class, 'investments'])->name('investments.index');
+
+    // Wallet Update Requests
+    Route::get('/wallet-requests', [App\Http\Controllers\Admin\WalletRequestController::class, 'index'])->name('wallet-requests.index');
+    Route::post('/wallet-requests/{walletRequest}/approve', [App\Http\Controllers\Admin\WalletRequestController::class, 'approve'])->name('wallet-requests.approve');
+    Route::post('/wallet-requests/{walletRequest}/reject', [App\Http\Controllers\Admin\WalletRequestController::class, 'reject'])->name('wallet-requests.reject');
 });
 
 require __DIR__.'/auth.php';

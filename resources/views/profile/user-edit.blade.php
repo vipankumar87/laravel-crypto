@@ -14,6 +14,24 @@
             Profile information updated successfully.
         </div>
     @endif
+    @if(session('status') === 'wallet-saved')
+        <div class="alert alert-success alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            BEP-20 wallet address saved successfully.
+        </div>
+    @endif
+    @if(session('status') === 'wallet-request-submitted')
+        <div class="alert alert-info alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            Your wallet update request has been submitted and is awaiting admin approval.
+        </div>
+    @endif
+    @if(session('status') === 'wallet-request-cancelled')
+        <div class="alert alert-warning alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            Your wallet update request has been cancelled.
+        </div>
+    @endif
     @if(session('status') === 'password-updated')
         <div class="alert alert-success alert-dismissible">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -149,41 +167,94 @@
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-link mr-2"></i>BEP-20 Wallet Address (Withdrawal)</h3>
                 </div>
-                <form method="POST" action="{{ route('profile.update-wallet') }}">
-                    @csrf
-                    @method('patch')
-                    <div class="card-body">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            This is the BSC (BEP-20) wallet address where your USDT withdrawals will be sent. Make sure this is correct before requesting a withdrawal.
-                        </div>
-                        <div class="form-group">
-                            <label for="bep_wallet_address">BEP-20 Wallet Address</label>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        This is the BSC (BEP-20) wallet address where your USDT withdrawals will be sent. Make sure this is correct before requesting a withdrawal.
+                    </div>
+
+                    @if($user->bep_wallet_address)
+                        {{-- User already has a wallet address --}}
+                        <div class="form-group mb-3">
+                            <label>Current Wallet Address</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fas fa-wallet"></i></span>
                                 </div>
-                                <input type="text" class="form-control @error('bep_wallet_address') is-invalid @enderror" id="bep_wallet_address" name="bep_wallet_address" value="{{ old('bep_wallet_address', $user->bep_wallet_address) }}" placeholder="0x..." maxlength="42">
-                                @error('bep_wallet_address')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <input type="text" class="form-control" value="{{ $user->bep_wallet_address }}" readonly>
+                                <div class="input-group-append">
+                                    <a href="https://bscscan.com/address/{{ $user->bep_wallet_address }}" target="_blank" class="btn btn-outline-secondary">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </div>
                             </div>
-                            <small class="text-muted">Must be a valid BSC address starting with 0x (42 characters)</small>
                         </div>
-                        @if($user->bep_wallet_address)
-                            <p class="mb-0">
-                                <strong>Current:</strong>
-                                <a href="https://bscscan.com/address/{{ $user->bep_wallet_address }}" target="_blank">
-                                    <code>{{ $user->bep_wallet_address }}</code>
-                                    <i class="fas fa-external-link-alt fa-xs"></i>
-                                </a>
-                            </p>
+
+                        @if($pendingWalletRequest)
+                            {{-- Pending update request exists --}}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-clock mr-1"></i>
+                                <strong>Update Request Pending</strong><br>
+                                You have submitted a request to change your wallet address to:<br>
+                                <code>{{ $pendingWalletRequest->new_wallet_address }}</code><br>
+                                <small class="text-muted">Submitted {{ $pendingWalletRequest->created_at->diffForHumans() }}. Waiting for admin approval.</small>
+                            </div>
+                            <form method="POST" action="{{ route('profile.cancel-wallet-request') }}">
+                                @csrf
+                                @method('delete')
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-times mr-1"></i>Cancel Request
+                                </button>
+                            </form>
+                        @else
+                            {{-- Allow submitting a new update request --}}
+                            <hr>
+                            <p class="text-muted mb-2"><i class="fas fa-info-circle mr-1"></i>To change your wallet address, submit a request below. Changes require admin approval.</p>
+                            <form method="POST" action="{{ route('profile.update-wallet') }}">
+                                @csrf
+                                @method('patch')
+                                <div class="form-group">
+                                    <label for="bep_wallet_address">New BEP-20 Wallet Address</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fas fa-wallet"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control @error('bep_wallet_address') is-invalid @enderror" id="bep_wallet_address" name="bep_wallet_address" value="{{ old('bep_wallet_address') }}" placeholder="0x..." maxlength="42">
+                                        @error('bep_wallet_address')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <small class="text-muted">Must be a valid BSC address starting with 0x (42 characters)</small>
+                                </div>
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-paper-plane mr-1"></i>Submit Update Request
+                                </button>
+                            </form>
                         @endif
-                    </div>
-                    <div class="card-footer">
-                        <button type="submit" class="btn btn-warning"><i class="fas fa-save mr-1"></i>Update Wallet Address</button>
-                    </div>
-                </form>
+                    @else
+                        {{-- No wallet address yet — allow direct save --}}
+                        <form method="POST" action="{{ route('profile.update-wallet') }}">
+                            @csrf
+                            @method('patch')
+                            <div class="form-group">
+                                <label for="bep_wallet_address">BEP-20 Wallet Address</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-wallet"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control @error('bep_wallet_address') is-invalid @enderror" id="bep_wallet_address" name="bep_wallet_address" value="{{ old('bep_wallet_address') }}" placeholder="0x..." maxlength="42">
+                                    @error('bep_wallet_address')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <small class="text-muted">Must be a valid BSC address starting with 0x (42 characters)</small>
+                            </div>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save mr-1"></i>Save Wallet Address
+                            </button>
+                        </form>
+                    @endif
+                </div>
             </div>
 
             <!-- Change Password -->

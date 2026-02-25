@@ -365,6 +365,14 @@ return [
             'icon' => 'fas fa-fw fa-money-check-alt',
             'can' => 'access-admin-features',
         ],
+        [
+            'text'        => 'Wallet Requests',
+            'route'       => 'admin.wallet-requests.index',
+            'icon'        => 'fas fa-fw fa-wallet',
+            'can'         => 'access-admin-features',
+            'label'       => 'pending',
+            'label_color' => 'warning',
+        ],
 
         // REGULAR USER-ONLY SECTIONS
         [
