@@ -82,6 +82,7 @@ class InvestmentController extends Controller
                     'amount' => $netAmount, // Net amount after fees
                     'expected_return' => $expectedReturn,
                     'duration_days' => $plan->duration_days,
+                    'monthly_return_rate' => $plan->monthly_return_rate,
                     'daily_return_rate' => $plan->daily_return_rate,
                     'start_date' => now(),
                     'end_date' => $endDate,
@@ -127,6 +128,7 @@ class InvestmentController extends Controller
                 'amount' => $netAmount, // Net amount after fees
                 'expected_return' => $expectedReturn,
                 'duration_days' => $plan->duration_days,
+                'monthly_return_rate' => $plan->monthly_return_rate,
                 'daily_return_rate' => $plan->daily_return_rate,
                 'start_date' => now(),
                 'end_date' => $endDate,

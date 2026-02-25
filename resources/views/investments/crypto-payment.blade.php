@@ -172,8 +172,8 @@
                                 <td>${{ number_format($investment->amount, 2) }}</td>
                             </tr>
                             <tr>
-                                <th>Daily Return Rate</th>
-                                <td>{{ $investment->daily_return_rate }}%</td>
+                                <th>Monthly Return Rate</th>
+                                <td>{{ number_format($investment->monthly_return_rate, 2) }}%</td>
                             </tr>
                             <tr>
                                 <th>Duration</th>

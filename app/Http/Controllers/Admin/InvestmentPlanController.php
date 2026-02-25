@@ -36,7 +36,7 @@ class InvestmentPlanController extends Controller
             'description' => 'required|string',
             'min_amount' => 'required|numeric|min:0.01',
             'max_amount' => 'required|numeric|min:0.01|gt:min_amount',
-            'daily_return_rate' => 'required|numeric|min:0.01|max:100',
+            'monthly_return_rate' => 'required|numeric|min:0.01|max:100',
             'duration_days' => 'required|integer|min:1',
             'max_investors' => 'nullable|integer|min:1',
             'status' => 'required|in:active,inactive',
@@ -49,15 +49,18 @@ class InvestmentPlanController extends Controller
                 ->withInput();
         }
 
-        // Calculate total return rate
-        $totalReturnRate = $request->daily_return_rate * $request->duration_days;
+        // Approximate daily rate (based on 30-day month) for display/legacy use
+        $approxDailyRate = $request->monthly_return_rate / 30;
+        // Total return = monthly rate × number of months in duration
+        $totalReturnRate = $request->monthly_return_rate * ($request->duration_days / 30);
 
         InvestmentPlan::create([
             'name' => $request->name,
             'description' => $request->description,
             'min_amount' => $request->min_amount,
             'max_amount' => $request->max_amount,
-            'daily_return_rate' => $request->daily_return_rate,
+            'monthly_return_rate' => $request->monthly_return_rate,
+            'daily_return_rate' => $approxDailyRate,
             'duration_days' => $request->duration_days,
             'total_return_rate' => $totalReturnRate,
             'referral_bonus_rate' => 0,
@@ -116,7 +119,7 @@ class InvestmentPlanController extends Controller
             'description' => 'required|string',
             'min_amount' => 'required|numeric|min:0.01',
             'max_amount' => 'required|numeric|min:0.01|gt:min_amount',
-            'daily_return_rate' => 'required|numeric|min:0.01|max:100',
+            'monthly_return_rate' => 'required|numeric|min:0.01|max:100',
             'duration_days' => 'required|integer|min:1',
             'max_investors' => 'nullable|integer|min:1',
             'status' => 'required|in:active,inactive',
@@ -129,15 +132,16 @@ class InvestmentPlanController extends Controller
                 ->withInput();
         }
 
-        // Calculate total return rate
-        $totalReturnRate = $request->daily_return_rate * $request->duration_days;
+        $approxDailyRate = $request->monthly_return_rate / 30;
+        $totalReturnRate = $request->monthly_return_rate * ($request->duration_days / 30);
 
         $investmentPlan->update([
             'name' => $request->name,
             'description' => $request->description,
             'min_amount' => $request->min_amount,
             'max_amount' => $request->max_amount,
-            'daily_return_rate' => $request->daily_return_rate,
+            'monthly_return_rate' => $request->monthly_return_rate,
+            'daily_return_rate' => $approxDailyRate,
             'duration_days' => $request->duration_days,
             'total_return_rate' => $totalReturnRate,
             'monthly_bonus_rate' => $request->monthly_bonus_rate ?? 0,

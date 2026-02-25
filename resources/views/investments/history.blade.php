@@ -20,7 +20,7 @@
                             <tr>
                                 <th>Plan</th>
                                 <th>Amount</th>
-                                <th>Daily Rate</th>
+                                <th>Monthly Rate</th>
                                 <th>Expected Return</th>
                                 <th>Duration</th>
                                 <th>Date</th>
@@ -33,7 +33,7 @@
                                 <tr>
                                     <td>{{ $investment->investment_plan }}</td>
                                     <td>${{ number_format($investment->amount, 2) }}</td>
-                                    <td>{{ number_format($investment->daily_return_rate, 2) }}%</td>
+                                    <td>{{ number_format($investment->monthly_return_rate, 2) }}%</td>
                                     <td>${{ number_format($investment->expected_return, 2) }}</td>
                                     <td>{{ $investment->duration_days }} days</td>
                                     <td>{{ $investment->created_at->format('M d, Y H:i') }}</td>

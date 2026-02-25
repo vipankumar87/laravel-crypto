@@ -14,6 +14,7 @@ class InvestmentPlan extends Model
         'description',
         'min_amount',
         'max_amount',
+        'monthly_return_rate',
         'daily_return_rate',
         'duration_days',
         'total_return_rate',
@@ -26,6 +27,7 @@ class InvestmentPlan extends Model
     protected $casts = [
         'min_amount' => 'decimal:2',
         'max_amount' => 'decimal:2',
+        'monthly_return_rate' => 'decimal:2',
         'daily_return_rate' => 'decimal:2',
         'total_return_rate' => 'decimal:2',
         'referral_bonus_rate' => 'decimal:2',

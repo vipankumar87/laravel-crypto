@@ -18,9 +18,9 @@
     <div class="card-body">
         <div class="text-center mb-4">
             <h2 class="pricing-amount">
-                {{ $plan->daily_return_rate }}% <small>daily</small>
+                {{ number_format($plan->monthly_return_rate, 2) }}% <small>monthly</small>
             </h2>
-            <p class="text-muted">{{ $plan->duration_days }} days ({{ $plan->total_return_rate }}% total)</p>
+            <p class="text-muted">{{ $plan->duration_days }} days ({{ number_format($plan->total_return_rate, 2) }}% total)</p>
         </div>
 
         <ul class="list-unstyled">

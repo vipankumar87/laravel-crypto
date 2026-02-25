@@ -31,7 +31,7 @@
                         <th>Name</th>
                         <th>Min Amount</th>
                         <th>Max Amount</th>
-                        <th>Daily Rate</th>
+                        <th>Monthly Rate</th>
                         <th>Total Rate</th>
                         <th>Duration</th>
                         <th>Status</th>
@@ -44,7 +44,7 @@
                             <td>{{ $plan->name }}</td>
                             <td>${{ number_format($plan->min_amount, 2) }}</td>
                             <td>${{ number_format($plan->max_amount, 2) }}</td>
-                            <td>{{ number_format($plan->daily_return_rate, 2) }}%</td>
+                            <td>{{ number_format($plan->monthly_return_rate, 2) }}%</td>
                             <td>{{ number_format($plan->total_return_rate, 2) }}%</td>
                             <td>{{ $plan->duration_days }} days</td>
                             <td>

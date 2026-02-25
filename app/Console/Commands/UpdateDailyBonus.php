@@ -318,8 +318,8 @@ class UpdateDailyBonus extends Command
                     $wallet->balance += $dailyEarning;
                     $wallet->save();
 
-                    // Create transaction record for the earning
-                    $this->createEarningTransaction($investment->user_id, $dailyEarning, 'earning', $investment);
+                    // Create transaction record for the earning (with daily rate logged)
+                    $this->createEarningTransaction($investment->user_id, $dailyEarning, 'earning', $investment, $investment->getEffectiveDailyRate());
                 } else {
                     $this->error("Wallet not found for user {$investment->user_id}");
                     continue;
@@ -363,10 +363,10 @@ class UpdateDailyBonus extends Command
     /**
      * Create a transaction record for earnings
      */
-    private function createEarningTransaction($userId, $amount, $type, $investment = null)
+    private function createEarningTransaction($userId, $amount, $type, $investment = null, $dailyRateUsed = null)
     {
         $today = now()->format('Y-m-d');
-        
+
         // Check if a transaction already exists for this investment today
         if ($investment) {
             $existingTransaction = \App\Models\Transaction::where('user_id', $userId)
@@ -374,13 +374,25 @@ class UpdateDailyBonus extends Command
                 ->where('description', 'like', "%#{$investment->id}")
                 ->whereDate('created_at', $today)
                 ->first();
-                
+
             if ($existingTransaction) {
                 $this->line("Transaction already exists for investment #{$investment->id} today");
                 return $existingTransaction;
             }
         }
-        
+
+        $metadata = [];
+        if ($investment && $dailyRateUsed !== null) {
+            $daysInMonth = \Carbon\Carbon::now()->daysInMonth;
+            $metadata = [
+                'investment_id'      => $investment->id,
+                'monthly_return_rate' => (float) $investment->monthly_return_rate,
+                'days_in_month'       => $daysInMonth,
+                'daily_rate_used'     => round($dailyRateUsed, 6),
+                'month'               => \Carbon\Carbon::now()->format('Y-m'),
+            ];
+        }
+
         $transaction = \App\Models\Transaction::create([
             'user_id' => $userId,
             'transaction_id' => 'EARN_' . uniqid() . '_' . date('YmdHis'),
@@ -388,18 +400,11 @@ class UpdateDailyBonus extends Command
             'amount' => $amount,
             'net_amount' => $amount,
             'status' => 'completed',
-            'description' => "Earning from investment",
+            'description' => "Earning from investment" . ($investment ? " #{$investment->id}" : ''),
+            'metadata' => $metadata ?: null,
             'processed_at' => now(),
         ]);
-        
-        // Link to investment if provided
-        if ($investment) {
-            // You might want to add investment_id to transactions table in future
-            // For now, we can store it in description or metadata
-            $transaction->description .= " #{$investment->id}";
-            $transaction->save();
-        }
-        
+
         return $transaction;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -23,6 +24,7 @@ class Investment extends Model
         'expected_return',
         'earned_amount',
         'duration_days',
+        'monthly_return_rate',
         'daily_return_rate',
         'status',
         'payment_method',
@@ -43,6 +45,7 @@ class Investment extends Model
         'gross_amount' => 'decimal:4',
         'expected_return' => 'decimal:2',
         'earned_amount' => 'decimal:2',
+        'monthly_return_rate' => 'decimal:2',
         'daily_return_rate' => 'decimal:2',
         'duration_days' => 'integer',
         'start_date' => 'datetime',
@@ -77,9 +80,23 @@ class Investment extends Model
     }
 
     // Helper methods
+
+    /**
+     * Get the effective daily rate for the current month.
+     * daily rate = monthly_return_rate / days_in_current_month
+     */
+    public function getEffectiveDailyRate(): float
+    {
+        if ($this->monthly_return_rate > 0) {
+            return (float) $this->monthly_return_rate / Carbon::now()->daysInMonth;
+        }
+        // Fallback to stored daily_return_rate for legacy investments
+        return (float) $this->daily_return_rate;
+    }
+
     public function calculateDailyEarning()
     {
-        return $this->amount * ($this->daily_return_rate / 100);
+        return $this->amount * ($this->getEffectiveDailyRate() / 100);
     }
 
     public function isActive()

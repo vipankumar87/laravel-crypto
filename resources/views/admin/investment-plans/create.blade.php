@@ -81,24 +81,21 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label for="daily_return_rate">Daily Return Rate (%) *</label>
-                            <input type="number" class="form-control @error('daily_return_rate') is-invalid @enderror"
-                                   id="daily_return_rate" name="daily_return_rate" value="{{ old('daily_return_rate') }}"
-                                   step="0.01" min="0.01" max="100" required>
-                            @error('daily_return_rate')
+                            <label for="monthly_return_rate">Monthly Return Rate (%) *</label>
+                            <input type="number" class="form-control @error('monthly_return_rate') is-invalid @enderror"
+                                   id="monthly_return_rate" name="monthly_return_rate" value="{{ old('monthly_return_rate') }}"
+                                   step="0.01" min="0.01" max="100" required oninput="updatePreview()">
+                            <small class="text-muted">Daily rate varies by month days (e.g. 30% ÷ 31 = 0.968%/day in Jan)</small>
+                            @error('monthly_return_rate')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label for="total_return_rate">Total Return Rate (%) *</label>
-                            <input type="number" class="form-control @error('total_return_rate') is-invalid @enderror"
-                                   id="total_return_rate" name="total_return_rate" value="{{ old('total_return_rate') }}"
-                                   step="0.01" min="0.01" max="1000" required>
-                            @error('total_return_rate')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <label>Approx. Daily Rate</label>
+                            <div class="form-control bg-light" id="approx_daily_rate">—</div>
+                            <small class="text-muted">Based on 30-day month</small>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -106,7 +103,7 @@
                             <label for="duration_days">Duration (Days) *</label>
                             <input type="number" class="form-control @error('duration_days') is-invalid @enderror"
                                    id="duration_days" name="duration_days" value="{{ old('duration_days') }}"
-                                   min="1" max="3650" required>
+                                   min="1" max="3650" required oninput="updatePreview()">
                             @error('duration_days')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -161,3 +158,14 @@
     </div>
 </div>
 @stop
+
+@push('js')
+<script>
+function updatePreview() {
+    const monthly = parseFloat(document.getElementById('monthly_return_rate').value) || 0;
+    document.getElementById('approx_daily_rate').textContent = monthly > 0
+        ? (monthly / 30).toFixed(4) + '%'
+        : '—';
+}
+</script>
+@endpush
